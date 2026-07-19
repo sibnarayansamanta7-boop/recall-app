@@ -1,0 +1,27 @@
+{
+  "name": "recall-server",
+  "version": "1.0.0",
+  "description": "Backend API for Recall knowledge rediscovery application",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "recall",
+    "bookmarks",
+    "knowledge",
+    "search"
+  ],
+  "author": "Sibnarayan Samanta",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.0",
+    "express": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
