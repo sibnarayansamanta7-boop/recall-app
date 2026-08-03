@@ -6,7 +6,7 @@ dotenv.config();
 
 const app = express();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8001;
 
 // Middleware
 app.use(cors());
@@ -25,7 +25,8 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
     status: "healthy",
-    project: "Recall"
+    project: "Recall",
+    developer:"Sibnarayan Samanta"
   });
 });
 
