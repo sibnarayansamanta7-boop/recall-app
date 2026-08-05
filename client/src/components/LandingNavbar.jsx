@@ -1,28 +1,33 @@
+import { Link } from "react-router-dom";
+
 function LandingNavbar() {
-    return (
-        <header className="landing-navbar">
-            <div className="navbar-container">
-                <a className="landing-logo" href="/">
-                    Recall
-                </a>
+  return (
+    <header className="landing-navbar">
+      <div className="navbar-container">
+        <Link className="landing-logo" to="/">
+          Recall
+        </Link>
 
-                <nav className="landing-nav-links" aria-label="Main navigation">
-                    <a href="#features">Features</a>
-                    <a href="#about">About</a>
-                </nav>
+        <nav
+          className="landing-nav-links"
+          aria-label="Main navigation"
+        >
+          <a href="#features">Features</a>
+          <a href="#about">About</a>
+        </nav>
 
-                <div className="landing-nav-actions">
-                    <button className="login-button" type="button">
-                        Login
-                    </button>
+        <div className="landing-nav-actions">
+          <Link className="login-button" to="/login">
+            Log in
+          </Link>
 
-                    <button className="register-button" type="button">
-                        Get started
-                    </button>
-                </div>
-            </div>
-        </header>
-    );
+          <Link className="register-button" to="/register">
+            Get started
+          </Link>
+        </div>
+      </div>
+    </header>
+  );
 }
 
 export default LandingNavbar;

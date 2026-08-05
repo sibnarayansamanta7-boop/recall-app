@@ -1,3 +1,6 @@
+
+
+
 * {
   box-sizing: border-box;
 }
@@ -10,7 +13,7 @@ body {
   margin: 0;
   min-width: 320px;
   background: #f8fafc;
-  color: #172033;
+  color: #f7f8fb;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -152,7 +155,7 @@ a {
   height: 500px;
   content: "";
   border-radius: 50%;
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(241, 241, 245, 0.12);
   filter: blur(70px);
   pointer-events: none;
 }
@@ -166,7 +169,7 @@ a {
 .section-label {
   display: inline-block;
   margin: 0 0 18px;
-  color: #4338ca;
+  color: #000000;
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -176,7 +179,7 @@ a {
 .hero-content h1 {
   max-width: 720px;
   margin: 0;
-  color: #131c31;
+  color: #000000;
   font-size: clamp(3rem, 6vw, 5.7rem);
   line-height: 0.99;
   letter-spacing: -0.065em;
@@ -184,7 +187,7 @@ a {
 
 .hero-content h1 span {
   display: block;
-  color: #6366f1;
+  color: #dec41d;
 }
 
 .hero-description {
