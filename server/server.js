@@ -2,34 +2,83 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import connectDatabase from "./config/db.js";
+
+import itemRoutes from "./routes/itemRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+
 dotenv.config();
 
 const app = express();
 
-const PORT = process.env.PORT || 8001;
+const PORT =
+  process.env.PORT || 8001;
 
-// Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin:
+      "http://localhost:5173",
+  })
+);
+
 app.use(express.json());
 
-// Test route
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Recall API is running"
+    message:
+      "Recall API is running",
   });
 });
 
-// Health-check route
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    status: "healthy",
-    project: "Recall",
-    developer:"Sibnarayan Samanta"
+app.get(
+  "/api/health",
+  (req, res) => {
+    res.status(200).json({
+      success: true,
+      status: "healthy",
+      project: "Recall",
+    });
+  }
+);
+
+app.use(
+  "/api/auth",
+  authRoutes
+);
+
+app.use(
+  "/api/items",
+  itemRoutes
+);
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found.",
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Recall server is running on port ${PORT}`);
-});
+async function startServer() {
+  try {
+    await connectDatabase();
+
+    app.listen(
+      PORT,
+      () => {
+        console.log(
+          `Recall server is running on port ${PORT}`
+        );
+      }
+    );
+  } catch (error) {
+    console.error(
+      "Server startup failed:",
+      error
+    );
+
+    process.exit(1);
+  }
+}
+
+startServer();

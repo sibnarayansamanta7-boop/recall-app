@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 
 function RegisterPage() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -33,25 +36,34 @@ function RegisterPage() {
     if (!formData.name.trim()) {
       newErrors.name = "Full name is required.";
     } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Name must contain at least 2 characters.";
+      newErrors.name =
+        "Name must contain at least 2 characters.";
     }
 
     if (!formData.email.trim()) {
       newErrors.email = "Email address is required.";
     } else if (!formData.email.includes("@")) {
-      newErrors.email = "Enter a valid email address.";
+      newErrors.email =
+        "Enter a valid email address.";
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required.";
+      newErrors.password =
+        "Password is required.";
     } else if (formData.password.length < 8) {
-      newErrors.password = "Password must contain at least 8 characters.";
+      newErrors.password =
+        "Password must contain at least 8 characters.";
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Confirm your password.";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match.";
+      newErrors.confirmPassword =
+        "Confirm your password.";
+    } else if (
+      formData.password !==
+      formData.confirmPassword
+    ) {
+      newErrors.confirmPassword =
+        "Passwords do not match.";
     }
 
     if (!formData.agreeToTerms) {
@@ -65,24 +77,28 @@ function RegisterPage() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    const validationErrors = validateForm();
+    const validationErrors =
+      validateForm();
 
-    if (Object.keys(validationErrors).length > 0) {
+    if (
+      Object.keys(validationErrors).length > 0
+    ) {
       setErrors(validationErrors);
       return;
     }
 
     const registrationData = {
-      name: formData.name,
-      email: formData.email,
+      name: formData.name.trim(),
+      email: formData.email.trim(),
       password: formData.password,
     };
 
-    console.log("Registration form data:", registrationData);
-
-    alert(
-      "Registration form is working. Backend connection will be added later."
+    console.log(
+      "Registration form data:",
+      registrationData
     );
+
+    navigate("/dashboard");
   }
 
   return (
@@ -93,9 +109,15 @@ function RegisterPage() {
       bottomLinkText="Login"
       bottomLinkTo="/login"
     >
-      <form className="auth-form" onSubmit={handleSubmit} noValidate>
+      <form
+        className="auth-form"
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <div className="auth-input-group">
-          <label htmlFor="register-name">Full name</label>
+          <label htmlFor="register-name">
+            Full name
+          </label>
 
           <input
             id="register-name"
@@ -104,16 +126,24 @@ function RegisterPage() {
             placeholder="FULL NAME"
             value={formData.name}
             onChange={handleChange}
-            className={errors.name ? "auth-input-error" : ""}
+            className={
+              errors.name
+                ? "auth-input-error"
+                : ""
+            }
           />
 
           {errors.name && (
-            <p className="auth-error-message">{errors.name}</p>
+            <p className="auth-error-message">
+              {errors.name}
+            </p>
           )}
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="register-email">Email address</label>
+          <label htmlFor="register-email">
+            Email address
+          </label>
 
           <input
             id="register-email"
@@ -122,41 +152,64 @@ function RegisterPage() {
             placeholder="EMAIL ADDRESS"
             value={formData.email}
             onChange={handleChange}
-            className={errors.email ? "auth-input-error" : ""}
+            className={
+              errors.email
+                ? "auth-input-error"
+                : ""
+            }
           />
 
           {errors.email && (
-            <p className="auth-error-message">{errors.email}</p>
+            <p className="auth-error-message">
+              {errors.email}
+            </p>
           )}
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="register-password">Password</label>
+          <label htmlFor="register-password">
+            Password
+          </label>
 
           <div className="auth-password-wrapper">
             <input
               id="register-password"
               name="password"
-              type={showPassword ? "text" : "password"}
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
               placeholder="MINIMUM 8 CHARACTERS"
               value={formData.password}
               onChange={handleChange}
-              className={errors.password ? "auth-input-error" : ""}
+              className={
+                errors.password
+                  ? "auth-input-error"
+                  : ""
+              }
             />
 
             <button
               className="auth-password-toggle"
               type="button"
               onClick={() =>
-                setShowPassword((currentValue) => !currentValue)
+                setShowPassword(
+                  (currentValue) =>
+                    !currentValue
+                )
               }
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword
+                ? "Hide"
+                : "Show"}
             </button>
           </div>
 
           {errors.password && (
-            <p className="auth-error-message">{errors.password}</p>
+            <p className="auth-error-message">
+              {errors.password}
+            </p>
           )}
         </div>
 
@@ -168,11 +221,19 @@ function RegisterPage() {
           <input
             id="register-confirm-password"
             name="confirmPassword"
-            type={showPassword ? "text" : "password"}
+            type={
+              showPassword
+                ? "text"
+                : "password"
+            }
             placeholder="CONFIRM PASSWORD"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className={errors.confirmPassword ? "auth-input-error" : ""}
+            className={
+              errors.confirmPassword
+                ? "auth-input-error"
+                : ""
+            }
           />
 
           {errors.confirmPassword && (
@@ -186,18 +247,27 @@ function RegisterPage() {
           <input
             name="agreeToTerms"
             type="checkbox"
-            checked={formData.agreeToTerms}
+            checked={
+              formData.agreeToTerms
+            }
             onChange={handleChange}
           />
 
-          <span>I agree to the Terms and Privacy Policy</span>
+          <span>
+            I agree to the Terms and Privacy Policy
+          </span>
         </label>
 
         {errors.agreeToTerms && (
-          <p className="auth-error-message">{errors.agreeToTerms}</p>
+          <p className="auth-error-message">
+            {errors.agreeToTerms}
+          </p>
         )}
 
-        <button className="auth-submit-button" type="submit">
+        <button
+          className="auth-submit-button"
+          type="submit"
+        >
           CREATE ACCOUNT
         </button>
       </form>

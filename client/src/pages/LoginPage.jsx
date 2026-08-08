@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 
 function LoginPage() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -54,7 +56,7 @@ function LoginPage() {
 
     console.log("Login form data:", formData);
 
-    alert("Login form is working. Backend connection will be added later.");
+    navigate("/dashboard");
   }
 
   return (
@@ -65,9 +67,15 @@ function LoginPage() {
       bottomLinkText="Register"
       bottomLinkTo="/register"
     >
-      <form className="auth-form" onSubmit={handleSubmit} noValidate>
+      <form
+        className="auth-form"
+        onSubmit={handleSubmit}
+        noValidate
+      >
         <div className="auth-input-group">
-          <label htmlFor="login-email">Email address</label>
+          <label htmlFor="login-email">
+            Email address
+          </label>
 
           <input
             id="login-email"
@@ -76,41 +84,64 @@ function LoginPage() {
             placeholder="EMAIL ADDRESS"
             value={formData.email}
             onChange={handleChange}
-            className={errors.email ? "auth-input-error" : ""}
+            className={
+              errors.email
+                ? "auth-input-error"
+                : ""
+            }
           />
 
           {errors.email && (
-            <p className="auth-error-message">{errors.email}</p>
+            <p className="auth-error-message">
+              {errors.email}
+            </p>
           )}
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="login-password">Password</label>
+          <label htmlFor="login-password">
+            Password
+          </label>
 
           <div className="auth-password-wrapper">
             <input
               id="login-password"
               name="password"
-              type={showPassword ? "text" : "password"}
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
               placeholder="PASSWORD"
               value={formData.password}
               onChange={handleChange}
-              className={errors.password ? "auth-input-error" : ""}
+              className={
+                errors.password
+                  ? "auth-input-error"
+                  : ""
+              }
             />
 
             <button
               className="auth-password-toggle"
               type="button"
               onClick={() =>
-                setShowPassword((currentValue) => !currentValue)
+                setShowPassword(
+                  (currentValue) =>
+                    !currentValue
+                )
               }
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword
+                ? "Hide"
+                : "Show"}
             </button>
           </div>
 
           {errors.password && (
-            <p className="auth-error-message">{errors.password}</p>
+            <p className="auth-error-message">
+              {errors.password}
+            </p>
           )}
         </div>
 
@@ -119,19 +150,27 @@ function LoginPage() {
             <input
               name="rememberMe"
               type="checkbox"
-              checked={formData.rememberMe}
+              checked={
+                formData.rememberMe
+              }
               onChange={handleChange}
             />
 
             <span>Remember me</span>
           </label>
 
-          <Link className="auth-forgot-link" to="/forgot-password">
+          <Link
+            className="auth-forgot-link"
+            to="/forgot-password"
+          >
             Forgot password?
           </Link>
         </div>
 
-        <button className="auth-submit-button" type="submit">
+        <button
+          className="auth-submit-button"
+          type="submit"
+        >
           LOGIN
         </button>
       </form>

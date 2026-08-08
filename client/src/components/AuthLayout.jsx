@@ -4,29 +4,48 @@ import themes from "../data/themes";
 import "../styles/auth.css";
 
 function AuthLayout({
-  title,
-  subtitle,
+  title = "",
+  subtitle = "",
   children,
-  bottomText,
-  bottomLinkText,
-  bottomLinkTo,
+  bottomText = "",
+  bottomLinkText = "",
+  bottomLinkTo = "/",
 }) {
-  const [selectedTheme, setSelectedTheme] = useState(themes[0]);
+  const [selectedTheme, setSelectedTheme] = useState(
+    Array.isArray(themes) && themes.length > 0
+      ? themes[0]
+      : {
+          id: 1,
+          name: "Default",
+          background: "#1A1A2E",
+          color: "#FFFFFF",
+          primaryColor: "#0F3460",
+        }
+  );
 
   const authPageStyle = {
-    "--auth-background": selectedTheme.background,
-    "--auth-color": selectedTheme.color,
-    "--auth-primary-color": selectedTheme.primaryColor,
+    "--auth-background":
+      selectedTheme.background || "#1A1A2E",
+    "--auth-color":
+      selectedTheme.color || "#FFFFFF",
+    "--auth-primary-color":
+      selectedTheme.primaryColor || "#0F3460",
   };
 
   return (
-    <main className="recall-auth-page" style={authPageStyle}>
+    <main
+      className="recall-auth-page"
+      style={authPageStyle}
+    >
       <section className="auth-container">
         <div className="auth-login-container">
-          <div className="auth-circle auth-circle-one"></div>
+          <div className="auth-circle auth-circle-one" />
 
           <div className="auth-form-container">
-            <Link className="auth-back-link" to="/">
+            <Link
+              className="auth-back-link"
+              to="/"
+            >
               ← Back to Recall
             </Link>
 
@@ -46,34 +65,39 @@ function AuthLayout({
             <div className="auth-bottom-navigation">
               <span>{bottomText}</span>
 
-              <Link to={bottomLinkTo}>{bottomLinkText}</Link>
+              <Link to={bottomLinkTo}>
+                {bottomLinkText}
+              </Link>
             </div>
           </div>
 
-          <div className="auth-circle auth-circle-two"></div>
+          <div className="auth-circle auth-circle-two" />
         </div>
 
         <div
           className="theme-btn-container"
           aria-label="Authentication page themes"
         >
-          {themes.map((theme) => (
-            <button
-              key={theme.id}
-              className={
-                selectedTheme.id === theme.id
-                  ? "theme-btn theme-btn-active"
-                  : "theme-btn"
-              }
-              type="button"
-              aria-label={`Use ${theme.name} theme`}
-              title={theme.name}
-              style={{
-                background: theme.background,
-              }}
-              onClick={() => setSelectedTheme(theme)}
-            />
-          ))}
+          {Array.isArray(themes) &&
+            themes.map((theme) => (
+              <button
+                key={theme.id}
+                className={
+                  selectedTheme.id === theme.id
+                    ? "theme-btn theme-btn-active"
+                    : "theme-btn"
+                }
+                type="button"
+                aria-label={`Use ${theme.name} theme`}
+                title={theme.name}
+                style={{
+                  background: theme.background,
+                }}
+                onClick={() =>
+                  setSelectedTheme(theme)
+                }
+              />
+            ))}
         </div>
       </section>
     </main>
