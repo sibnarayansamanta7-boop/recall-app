@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
+import {
+  loginUser,
+  saveAuthToken,
+} from "../services/authApi";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -12,6 +16,8 @@ function LoginPage() {
   });
 
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   function handleChange(event) {
@@ -26,6 +32,8 @@ function LoginPage() {
       ...currentErrors,
       [name]: "",
     }));
+
+    setServerError("");
   }
 
   function validateForm() {
@@ -44,7 +52,7 @@ function LoginPage() {
     return newErrors;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     const validationErrors = validateForm();
@@ -54,24 +62,42 @@ function LoginPage() {
       return;
     }
 
-    console.log("Login form data:", formData);
+    setIsLoading(true);
+    setServerError("");
 
-    navigate("/dashboard");
+    try {
+      const data = await loginUser({
+        email: formData.email.trim(),
+        password: formData.password,
+      });
+
+      saveAuthToken(data.token);
+
+      navigate("/dashboard");
+    } catch (error) {
+      setServerError(
+        error.message || "Unable to login. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <AuthLayout
-      title="LOGIN"
-      subtitle="Welcome back. Continue exploring your saved knowledge."
+      title="Welcome back"
+      subtitle="Log in to rediscover everything you saved."
       bottomText="Don't have an account?"
-      bottomLinkText="Register"
+      bottomLinkText="Create account"
       bottomLinkTo="/register"
     >
-      <form
-        className="auth-form"
-        onSubmit={handleSubmit}
-        noValidate
-      >
+      <form className="auth-form" onSubmit={handleSubmit}>
+        {serverError && (
+          <p className="auth-error-message">
+            {serverError}
+          </p>
+        )}
+
         <div className="auth-input-group">
           <label htmlFor="login-email">
             Email address
@@ -85,9 +111,7 @@ function LoginPage() {
             value={formData.email}
             onChange={handleChange}
             className={
-              errors.email
-                ? "auth-input-error"
-                : ""
+              errors.email ? "auth-input-error" : ""
             }
           />
 
@@ -108,9 +132,7 @@ function LoginPage() {
               id="login-password"
               name="password"
               type={
-                showPassword
-                  ? "text"
-                  : "password"
+                showPassword ? "text" : "password"
               }
               placeholder="PASSWORD"
               value={formData.password}
@@ -127,14 +149,11 @@ function LoginPage() {
               type="button"
               onClick={() =>
                 setShowPassword(
-                  (currentValue) =>
-                    !currentValue
+                  (currentValue) => !currentValue
                 )
               }
             >
-              {showPassword
-                ? "Hide"
-                : "Show"}
+              {showPassword ? "Hide" : "Show"}
             </button>
           </div>
 
@@ -150,9 +169,7 @@ function LoginPage() {
             <input
               name="rememberMe"
               type="checkbox"
-              checked={
-                formData.rememberMe
-              }
+              checked={formData.rememberMe}
               onChange={handleChange}
             />
 
@@ -170,8 +187,9 @@ function LoginPage() {
         <button
           className="auth-submit-button"
           type="submit"
+          disabled={isLoading}
         >
-          LOGIN
+          {isLoading ? "LOGGING IN..." : "LOGIN"}
         </button>
       </form>
     </AuthLayout>

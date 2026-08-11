@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
+import {
+  registerUser,
+  saveAuthToken,
+} from "../services/authApi";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -14,6 +18,8 @@ function RegisterPage() {
   });
 
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   function handleChange(event) {
@@ -21,13 +27,16 @@ function RegisterPage() {
 
     setFormData((currentData) => ({
       ...currentData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]:
+        type === "checkbox" ? checked : value,
     }));
 
     setErrors((currentErrors) => ({
       ...currentErrors,
       [name]: "",
     }));
+
+    setServerError("");
   }
 
   function validateForm() {
@@ -41,7 +50,8 @@ function RegisterPage() {
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email address is required.";
+      newErrors.email =
+        "Email address is required.";
     } else if (!formData.email.includes("@")) {
       newErrors.email =
         "Enter a valid email address.";
@@ -74,37 +84,43 @@ function RegisterPage() {
     return newErrors;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    const validationErrors =
-      validateForm();
+    const validationErrors = validateForm();
 
-    if (
-      Object.keys(validationErrors).length > 0
-    ) {
+    if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    const registrationData = {
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      password: formData.password,
-    };
+    setIsLoading(true);
+    setServerError("");
 
-    console.log(
-      "Registration form data:",
-      registrationData
-    );
+    try {
+      const data = await registerUser({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+      });
 
-    navigate("/dashboard");
+      saveAuthToken(data.token);
+
+      navigate("/dashboard");
+    } catch (error) {
+      setServerError(
+        error.message ||
+          "Unable to create account."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <AuthLayout
-      title="REGISTER"
-      subtitle="Create your personal space for saving and rediscovering knowledge."
+      title="Create account"
+      subtitle="Start building your searchable memory."
       bottomText="Already have an account?"
       bottomLinkText="Login"
       bottomLinkTo="/login"
@@ -112,8 +128,13 @@ function RegisterPage() {
       <form
         className="auth-form"
         onSubmit={handleSubmit}
-        noValidate
       >
+        {serverError && (
+          <p className="auth-error-message">
+            {serverError}
+          </p>
+        )}
+
         <div className="auth-input-group">
           <label htmlFor="register-name">
             Full name
@@ -200,9 +221,7 @@ function RegisterPage() {
                 )
               }
             >
-              {showPassword
-                ? "Hide"
-                : "Show"}
+              {showPassword ? "Hide" : "Show"}
             </button>
           </div>
 
@@ -247,9 +266,7 @@ function RegisterPage() {
           <input
             name="agreeToTerms"
             type="checkbox"
-            checked={
-              formData.agreeToTerms
-            }
+            checked={formData.agreeToTerms}
             onChange={handleChange}
           />
 
@@ -267,8 +284,11 @@ function RegisterPage() {
         <button
           className="auth-submit-button"
           type="submit"
+          disabled={isLoading}
         >
-          CREATE ACCOUNT
+          {isLoading
+            ? "CREATING ACCOUNT..."
+            : "CREATE ACCOUNT"}
         </button>
       </form>
     </AuthLayout>

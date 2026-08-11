@@ -1,60 +1,68 @@
-const itemTypes = [
-  {
-    id: "link",
-    icon: "↗",
-    title: "Link",
-    description: "Save a webpage, video or article",
-  },
-  {
-    id: "note",
-    icon: "✎",
-    title: "Note",
-    description: "Save your own idea or learning",
-  },
-  {
-    id: "screenshot",
-    icon: "▣",
-    title: "Screenshot",
-    description: "Save an image for future search",
-  },
-];
-
 function ItemTypeSelector({
   selectedType = "link",
   onTypeChange,
 }) {
-  function handleTypeChange(typeId) {
+  const itemTypes = [
+    {
+      id: "link",
+      icon: "↗",
+      label: "Link",
+      description: "Save a website",
+    },
+    {
+      id: "note",
+      icon: "✎",
+      label: "Note",
+      description: "Save personal knowledge",
+    },
+    {
+      id: "screenshot",
+      icon: "▣",
+      label: "Screenshot",
+      description: "Save an image",
+    },
+  ];
+
+  function handleTypeChange(type) {
     if (typeof onTypeChange === "function") {
-      onTypeChange(typeId);
+      onTypeChange(type);
     }
   }
 
   return (
     <div className="item-type-selector">
-      {itemTypes.map((type) => (
-        <button
-          key={type.id}
-          className={
-            selectedType === type.id
-              ? "item-type-button item-type-button-active"
-              : "item-type-button"
-          }
-          type="button"
-          onClick={() => handleTypeChange(type.id)}
-        >
-          <span
-            className="item-type-icon"
-            aria-hidden="true"
-          >
-            {type.icon}
-          </span>
+      <div className="item-type-selector-label">
+        What do you want to save?
+      </div>
 
-          <span className="item-type-text">
-            <strong>{type.title}</strong>
-            <small>{type.description}</small>
-          </span>
-        </button>
-      ))}
+      <div className="item-type-options">
+        {itemTypes.map((itemType) => (
+          <button
+            key={itemType.id}
+            type="button"
+            className={`item-type-option ${
+              selectedType === itemType.id
+                ? "item-type-option-active"
+                : ""
+            }`}
+            onClick={() =>
+              handleTypeChange(itemType.id)
+            }
+          >
+            <span className="item-type-icon">
+              {itemType.icon}
+            </span>
+
+            <span className="item-type-content">
+              <strong>{itemType.label}</strong>
+
+              <small>
+                {itemType.description}
+              </small>
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

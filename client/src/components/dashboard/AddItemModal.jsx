@@ -13,9 +13,8 @@ const createInitialFormData = () => ({
 });
 
 function AddItemModal({
-  isOpen,
   onClose,
-  onAddItem,
+  onSubmit,
   isSaving = false,
 }) {
   const [formData, setFormData] = useState(
@@ -25,17 +24,17 @@ function AddItemModal({
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
     function handleEscape(event) {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !isSaving) {
         handleClose();
       }
     }
 
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener(
+      "keydown",
+      handleEscape
+    );
+
     document.body.style.overflow = "hidden";
 
     return () => {
@@ -46,21 +45,22 @@ function AddItemModal({
 
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [isSaving]);
 
   function resetForm() {
+    if (formData.screenshotPreview) {
+      URL.revokeObjectURL(
+        formData.screenshotPreview
+      );
+    }
+
     setFormData(createInitialFormData());
     setErrors({});
   }
 
   function handleClose() {
     if (isSaving) {
-  return;
-}
-    if (formData.screenshotPreview) {
-      URL.revokeObjectURL(
-        formData.screenshotPreview
-      );
+      return;
     }
 
     resetForm();
@@ -194,10 +194,8 @@ function AddItemModal({
         "Choose a screenshot.";
     }
 
-    if (!formData.userNote.trim()) {
-      newErrors.userNote =
-        "Explain why you are saving this item.";
-    }
+    // userNote is OPTIONAL.
+    // Do not validate it as required.
 
     return newErrors;
   }
@@ -207,16 +205,17 @@ function AddItemModal({
       return "Personal note";
     }
 
-    if (
-      formData.type === "screenshot"
-    ) {
+    if (formData.type === "screenshot") {
       return "Screenshot";
     }
 
     try {
       return new URL(
         formData.url
-      ).hostname.replace("www.", "");
+      ).hostname.replace(
+        "www.",
+        ""
+      );
     } catch {
       return "Website";
     }
@@ -227,9 +226,7 @@ function AddItemModal({
       return "Saved website link.";
     }
 
-    if (
-      formData.type === "screenshot"
-    ) {
+    if (formData.type === "screenshot") {
       return "Saved screenshot.";
     }
 
@@ -239,12 +236,15 @@ function AddItemModal({
   function handleSubmit(event) {
     event.preventDefault();
 
+    if (isSaving) {
+      return;
+    }
+
     const validationErrors =
       validateForm();
 
     if (
-      Object.keys(validationErrors)
-        .length > 0
+      Object.keys(validationErrors).length > 0
     ) {
       setErrors(validationErrors);
       return;
@@ -258,8 +258,6 @@ function AddItemModal({
       .filter(Boolean);
 
     const newItem = {
-      id: `${Date.now()}-${Math.random()}`,
-
       type: formData.type,
 
       title: formData.title.trim(),
@@ -277,6 +275,7 @@ function AddItemModal({
 
       tags: tagsArray,
 
+      // OPTIONAL
       userNote:
         formData.userNote.trim(),
 
@@ -291,42 +290,13 @@ function AddItemModal({
           : "",
     };
 
-    if (
-      typeof onAddItem === "function"
-    ) {
-      onAddItem(newItem);
+    if (typeof onSubmit === "function") {
+      onSubmit(newItem);
     }
-
-    /*
-      IMPORTANT:
-      Do NOT revoke screenshotPreview here.
-
-      The dashboard card is currently using
-      this temporary URL to display the image.
-    */
-
-    setFormData(
-      createInitialFormData()
-    );
-
-    setErrors({});
-
-    if (
-      typeof onClose === "function"
-    ) {
-      onClose();
-    }
-  }
-
-  if (!isOpen) {
-    return null;
   }
 
   return (
-    <div
-      className="add-item-modal-overlay"
-      onMouseDown={handleClose}
-    >
+    <div className="add-item-modal-overlay">
       <section
         className="add-item-modal"
         role="dialog"
@@ -338,9 +308,9 @@ function AddItemModal({
       >
         <header className="add-item-modal-header">
           <div>
-            <p className="add-item-modal-label">
+            <span className="add-item-modal-eyebrow">
               Build your memory
-            </p>
+            </span>
 
             <h2 id="add-item-heading">
               Save something useful
@@ -357,6 +327,7 @@ function AddItemModal({
             type="button"
             aria-label="Close add item form"
             onClick={handleClose}
+            disabled={isSaving}
           >
             ×
           </button>
@@ -368,12 +339,8 @@ function AddItemModal({
           noValidate
         >
           <ItemTypeSelector
-            selectedType={
-              formData.type
-            }
-            onTypeChange={
-              handleTypeChange
-            }
+            selectedType={formData.type}
+            onTypeChange={handleTypeChange}
           />
 
           <div className="add-item-form-group">
@@ -407,8 +374,7 @@ function AddItemModal({
           {formData.type === "link" && (
             <div className="add-item-form-group">
               <label htmlFor="item-url">
-                Website URL{" "}
-                <span>*</span>
+                Website URL <span>*</span>
               </label>
 
               <input
@@ -433,66 +399,62 @@ function AddItemModal({
             </div>
           )}
 
-          {formData.type ===
-            "screenshot" && (
-              <div className="add-item-form-group">
-                <label htmlFor="item-screenshot">
-                  Screenshot{" "}
-                  <span>*</span>
-                </label>
+          {formData.type === "screenshot" && (
+            <div className="add-item-form-group">
+              <label htmlFor="item-screenshot">
+                Screenshot <span>*</span>
+              </label>
 
-                <label
-                  htmlFor="item-screenshot"
-                  className={
-                    errors.screenshotFile
-                      ? "screenshot-upload-area screenshot-upload-error"
-                      : "screenshot-upload-area"
-                  }
-                >
-                  {formData.screenshotPreview ? (
-                    <img
-                      src={
-                        formData.screenshotPreview
-                      }
-                      alt="Selected screenshot preview"
-                    />
-                  ) : (
-                    <>
-                      <span className="screenshot-upload-icon">
-                        ⇧
-                      </span>
-
-                      <strong>
-                        Choose a screenshot
-                      </strong>
-
-                      <small>
-                        JPEG, PNG or WebP,
-                        maximum 5 MB
-                      </small>
-                    </>
-                  )}
-                </label>
-
-                <input
-                  id="item-screenshot"
-                  className="screenshot-file-input"
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={
-                    handleScreenshotChange
-                  }
-                />
-
-                {errors.screenshotFile && (
-                  <p className="add-item-error">
-                    {
-                      errors.screenshotFile
+              <label
+                htmlFor="item-screenshot"
+                className={
+                  errors.screenshotFile
+                    ? "screenshot-upload-area screenshot-upload-error"
+                    : "screenshot-upload-area"
+                }
+              >
+                {formData.screenshotPreview ? (
+                  <img
+                    src={
+                      formData.screenshotPreview
                     }
-                  </p>
+                    alt="Selected screenshot preview"
+                  />
+                ) : (
+                  <>
+                    <span className="screenshot-upload-icon">
+                      ⇧
+                    </span>
+
+                    <strong>
+                      Choose a screenshot
+                    </strong>
+
+                    <small>
+                      JPEG, PNG or WebP,
+                      maximum 5 MB
+                    </small>
+                  </>
                 )}
-              </div>
-            )}
+              </label>
+
+              <input
+                id="item-screenshot"
+                className="screenshot-file-input"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={
+                  handleScreenshotChange
+                }
+              />
+
+              {errors.screenshotFile && (
+                <p className="add-item-error">
+                  {errors.screenshotFile}
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="add-item-form-group">
             <label htmlFor="item-description">
@@ -500,10 +462,9 @@ function AddItemModal({
                 ? "Note content"
                 : "Description"}
 
-              {formData.type ===
-                "note" && (
-                  <span> *</span>
-                )}
+              {formData.type === "note" && (
+                <span> *</span>
+              )}
             </label>
 
             <textarea
@@ -533,8 +494,7 @@ function AddItemModal({
 
           <div className="add-item-form-group">
             <label htmlFor="item-note">
-              Why are you saving this?{" "}
-              <span>*</span>
+              Why are you saving this?
             </label>
 
             <textarea
@@ -544,22 +504,11 @@ function AddItemModal({
               placeholder="Useful for my React authentication project"
               value={formData.userNote}
               onChange={handleChange}
-              className={
-                errors.userNote
-                  ? "form-field-error"
-                  : ""
-              }
             />
 
-            {errors.userNote && (
-              <p className="add-item-error">
-                {errors.userNote}
-              </p>
-            )}
-
             <small className="add-item-help-text">
-              Your personal reason will
-              make future searches more
+              Optional. Your personal reason
+              can make future searches more
               accurate.
             </small>
           </div>
@@ -579,8 +528,8 @@ function AddItemModal({
             />
 
             <small className="add-item-help-text">
-              Separate multiple tags
-              using commas.
+              Separate multiple tags using
+              commas.
             </small>
           </div>
 
@@ -589,6 +538,7 @@ function AddItemModal({
               className="add-item-cancel-button"
               type="button"
               onClick={handleClose}
+              disabled={isSaving}
             >
               Cancel
             </button>
@@ -621,9 +571,7 @@ function getTitlePlaceholder(type) {
   return "Complete JWT authentication guide";
 }
 
-function getDescriptionPlaceholder(
-  type
-) {
+function getDescriptionPlaceholder(type) {
   if (type === "note") {
     return "Write the knowledge or idea you want to remember...";
   }

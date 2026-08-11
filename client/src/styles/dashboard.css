@@ -1,3 +1,8 @@
+/* =========================================================
+   RECALL DASHBOARD
+   Complete Dashboard Styles
+   ========================================================= */
+
 .dashboard-page {
   min-height: 100vh;
   display: flex;
@@ -16,6 +21,7 @@
 
 .dashboard-page button,
 .dashboard-page input,
+.dashboard-page textarea,
 .dashboard-page select {
   font: inherit;
 }
@@ -24,7 +30,9 @@
   cursor: pointer;
 }
 
-/* Sidebar */
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
 
 .dashboard-sidebar {
   position: fixed;
@@ -159,24 +167,6 @@
   font-size: 1rem;
 }
 
-.collection-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-}
-
-.collection-dot-purple {
-  background: #8b5cf6;
-}
-
-.collection-dot-blue {
-  background: #3b82f6;
-}
-
-.collection-dot-green {
-  background: #10b981;
-}
-
 .dashboard-sidebar-footer {
   padding: 15px;
   border-top: 1px solid #edf0f5;
@@ -211,7 +201,9 @@
   display: none;
 }
 
-/* Main area */
+/* =========================================================
+   MAIN AREA
+   ========================================================= */
 
 .dashboard-main-area {
   width: calc(100% - 260px);
@@ -219,7 +211,9 @@
   margin-left: 260px;
 }
 
-/* Header */
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .dashboard-header {
   position: sticky;
@@ -231,7 +225,7 @@
   align-items: center;
   gap: 24px;
   border-bottom: 1px solid rgba(229, 233, 241, 0.9);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
 }
 
@@ -294,6 +288,7 @@
   padding: 0 16px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   border: 1px solid #4338ca;
   border-radius: 11px;
@@ -306,6 +301,7 @@
 
 .dashboard-add-button:hover {
   background: #3730a3;
+  transform: translateY(-2px);
 }
 
 .dashboard-add-button span {
@@ -320,6 +316,12 @@
   border-radius: 11px;
   background: white;
   color: #6f7a8f;
+}
+
+.dashboard-notification-button:hover {
+  color: #4338ca;
+  border-color: #c7d2fe;
+  background: #eef2ff;
 }
 
 .notification-dot {
@@ -381,7 +383,9 @@
   color: #97a0b1;
 }
 
-/* Content */
+/* =========================================================
+   CONTENT
+   ========================================================= */
 
 .dashboard-content {
   width: min(1450px, 100%);
@@ -435,13 +439,17 @@
 .dashboard-welcome-add:hover {
   border-color: #a5b4fc;
   color: #4338ca;
+  background: #f8f9ff;
+  transform: translateY(-2px);
 }
 
 .dashboard-welcome-add span {
   font-size: 1.2rem;
 }
 
-/* Statistics */
+/* =========================================================
+   STATISTICS
+   ========================================================= */
 
 .dashboard-stat-grid {
   margin-top: 34px;
@@ -501,7 +509,9 @@
   white-space: nowrap;
 }
 
-/* Rediscover */
+/* =========================================================
+   REDISCOVER
+   ========================================================= */
 
 .dashboard-rediscover-card {
   margin-top: 24px;
@@ -564,7 +574,15 @@
   font-weight: 750;
 }
 
-/* Filters */
+.dashboard-rediscover-card > button:hover {
+  color: white;
+  background: #4f46e5;
+  transform: translateY(-2px);
+}
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
 
 .dashboard-library-section {
   margin-top: 44px;
@@ -618,6 +636,7 @@
 
 .dashboard-filter-button:hover {
   color: #4338ca;
+  background: #f5f3ff;
 }
 
 .dashboard-filter-button-active {
@@ -636,7 +655,9 @@
   font-size: 0.74rem;
 }
 
-/* Saved items */
+/* =========================================================
+   SAVED ITEMS
+   ========================================================= */
 
 .saved-items-grid {
   display: grid;
@@ -878,7 +899,9 @@
   background: #eef2ff;
 }
 
-/* Empty state */
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
 
 .dashboard-empty-state {
   min-height: 360px;
@@ -945,163 +968,93 @@
   color: #667187;
 }
 
-/* Responsive design */
+/* =========================================================
+   API ERROR / LOADING
+   ========================================================= */
 
-@media (max-width: 1200px) {
-  .dashboard-stat-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.dashboard-api-error {
+  margin-top: 24px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border: 1px solid #fecaca;
+  border-radius: 14px;
+  background: #fef2f2;
+}
 
-  .saved-items-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.dashboard-api-error strong {
+  color: #991b1b;
+  font-size: 0.84rem;
+}
 
-  .dashboard-profile-text,
-  .dashboard-profile-arrow {
-    display: none;
+.dashboard-api-error p {
+  margin: 4px 0 0;
+  color: #b91c1c;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.dashboard-api-error button {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 1px solid #ef4444;
+  border-radius: 9px;
+  background: white;
+  color: #dc2626;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.dashboard-api-error button:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.dashboard-loading-state {
+  min-height: 320px;
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e3e7ef;
+  border-radius: 18px;
+  background: white;
+  text-align: center;
+}
+
+.dashboard-loading-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #e0e7ff;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: dashboard-spin 0.8s linear infinite;
+}
+
+.dashboard-loading-state h3 {
+  margin: 18px 0 0;
+  color: #29354c;
+  font-size: 1rem;
+}
+
+.dashboard-loading-state p {
+  margin: 7px 0 0;
+  color: #8490a3;
+  font-size: 0.76rem;
+}
+
+@keyframes dashboard-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 950px) {
-  .dashboard-sidebar {
-    transform: translateX(-100%);
-    box-shadow: 20px 0 45px rgba(15, 23, 42, 0.15);
-  }
-
-  .dashboard-sidebar-open {
-    transform: translateX(0);
-  }
-
-  .dashboard-sidebar-close {
-    display: block;
-  }
-
-  .dashboard-sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 90;
-    display: block;
-    border: none;
-    background: rgba(15, 23, 42, 0.42);
-  }
-
-  .dashboard-main-area {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .dashboard-menu-button {
-    display: block;
-  }
-
-  .dashboard-search-wrapper {
-    width: auto;
-    flex: 1;
-  }
-}
-
-@media (max-width: 720px) {
-  .dashboard-header {
-    padding: 0 16px;
-    gap: 10px;
-  }
-
-  .dashboard-search-wrapper kbd,
-  .dashboard-notification-button,
-  .dashboard-profile {
-    display: none;
-  }
-
-  .dashboard-add-button {
-    width: 42px;
-    padding: 0;
-    justify-content: center;
-  }
-
-  .dashboard-add-button:not(span) {
-    font-size: 0;
-  }
-
-  .dashboard-add-button span {
-    font-size: 1.25rem;
-  }
-
-  .dashboard-content {
-    padding: 28px 16px 55px;
-  }
-
-  .dashboard-welcome-section {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .dashboard-welcome-add {
-    align-self: flex-start;
-  }
-
-  .dashboard-stat-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .dashboard-rediscover-card {
-    grid-template-columns: auto 1fr;
-  }
-
-  .dashboard-rediscover-card > button {
-    grid-column: 1 / -1;
-  }
-
-  .dashboard-filter-bar {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .dashboard-filter-controls {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .dashboard-filter-buttons {
-    overflow-x: auto;
-  }
-
-  .dashboard-filter-button {
-    flex: 0 0 auto;
-  }
-
-  .dashboard-sort-select {
-    width: 100%;
-  }
-
-  .saved-items-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .dashboard-stat-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-stat-card {
-    padding: 17px;
-  }
-
-  .dashboard-welcome-section h1 {
-    font-size: 2rem;
-  }
-
-  .dashboard-empty-actions {
-    width: 100%;
-    flex-direction: column;
-  }
-
-  .dashboard-empty-actions button {
-    width: 100%;
-  }
-}
-
-/* Add item modal */
+/* =========================================================
+   ADD ITEM MODAL
+   ========================================================= */
 
 .add-item-modal-overlay {
   position: fixed;
@@ -1190,6 +1143,7 @@
   border-color: #fecaca;
   background: #fef2f2;
   color: #dc2626;
+  transform: rotate(90deg);
 }
 
 .add-item-form {
@@ -1199,71 +1153,110 @@
   gap: 21px;
 }
 
+/* =========================================================
+   ITEM TYPE SELECTOR
+   ========================================================= */
+
 .item-type-selector {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  width: 100%;
 }
 
-.item-type-button {
-  min-height: 84px;
+.item-type-selector-label {
+  margin-bottom: 14px;
+  color: #18233a;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.item-type-options {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.item-type-option {
+  width: 100%;
+  min-width: 0;
+  min-height: 82px;
   padding: 13px;
   display: flex;
   align-items: center;
   gap: 11px;
-  border: 1px solid #e2e6ee;
-  border-radius: 13px;
-  background: #fafbfc;
-  color: #687489;
+  border: 1px solid #dfe4ee;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #18233a;
+  cursor: pointer;
   text-align: left;
+  font-family: inherit;
   transition:
-    border-color 160ms ease,
-    background 160ms ease,
-    transform 160ms ease;
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
-.item-type-button:hover {
+.item-type-option:hover {
+  border-color: #5145cd;
+  background: #fafaff;
   transform: translateY(-2px);
-  border-color: #c7d2fe;
-  background: #f8f9ff;
 }
 
-.item-type-button-active {
-  border-color: #818cf8;
-  background: #eef2ff;
-  color: #4338ca;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+.item-type-option-active {
+  border-color: #5145cd;
+  background: #f3f1ff;
+  box-shadow: 0 0 0 3px rgba(81, 69, 205, 0.08);
 }
 
 .item-type-icon {
-  width: 37px;
-  height: 37px;
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  background: white;
-  color: #4f46e5;
-  font-size: 1rem;
-  box-shadow: 0 5px 14px rgba(30, 41, 59, 0.06);
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: #eef0ff;
+  color: #5145cd;
+  font-size: 20px;
+  line-height: 1;
 }
 
-.item-type-text {
+.item-type-content {
   min-width: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.item-type-text strong {
-  font-size: 0.78rem;
+.item-type-content strong {
+  color: #18233a;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
-.item-type-text small {
-  color: #919aac;
-  font-size: 0.62rem;
+.item-type-content small {
+  color: #8a96aa;
+  font-size: 12px;
+  font-weight: 500;
   line-height: 1.35;
 }
+
+.item-type-option-active .item-type-icon {
+  background: #5145cd;
+  color: #ffffff;
+}
+
+.item-type-option-active .item-type-content strong {
+  color: #5145cd;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
 
 .add-item-form-group {
   display: flex;
@@ -1290,7 +1283,6 @@
   outline: none;
   background: #fbfcfe;
   color: #263249;
-  font: inherit;
   font-size: 0.8rem;
   line-height: 1.55;
   resize: vertical;
@@ -1328,6 +1320,10 @@
   font-size: 0.65rem;
   line-height: 1.5;
 }
+
+/* =========================================================
+   SCREENSHOT UPLOAD
+   ========================================================= */
 
 .screenshot-file-input {
   position: absolute;
@@ -1397,6 +1393,10 @@
   font-size: 0.66rem;
 }
 
+/* =========================================================
+   MODAL ACTIONS
+   ========================================================= */
+
 .add-item-form-actions {
   padding-top: 20px;
   display: flex;
@@ -1422,6 +1422,7 @@
 
 .add-item-cancel-button:hover {
   background: #f7f8fa;
+  transform: translateY(-2px);
 }
 
 .add-item-save-button {
@@ -1433,6 +1434,178 @@
 
 .add-item-save-button:hover {
   background: #3730a3;
+  transform: translateY(-2px);
+}
+
+.add-item-save-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================================================
+   GENERAL BUTTON / FOCUS
+   ========================================================= */
+
+.dashboard-page button,
+.dashboard-page a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-page button:active {
+  transform: scale(0.97);
+}
+
+.dashboard-page button:focus-visible,
+.dashboard-page a:focus-visible,
+.dashboard-page select:focus-visible,
+.dashboard-page input:focus-visible,
+.dashboard-page textarea:focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.28);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  .dashboard-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .saved-items-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-profile-text,
+  .dashboard-profile-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 950px) {
+  .dashboard-sidebar {
+    transform: translateX(-100%);
+    box-shadow: 20px 0 45px rgba(15, 23, 42, 0.15);
+  }
+
+  .dashboard-sidebar-open {
+    transform: translateX(0);
+  }
+
+  .dashboard-sidebar-close {
+    display: block;
+  }
+
+  .dashboard-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: block;
+    border: none;
+    background: rgba(15, 23, 42, 0.42);
+  }
+
+  .dashboard-main-area {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .dashboard-menu-button {
+    display: block;
+  }
+
+  .dashboard-search-wrapper {
+    width: auto;
+    flex: 1;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-header {
+    padding: 0 16px;
+    gap: 10px;
+  }
+
+  .dashboard-search-wrapper kbd,
+  .dashboard-notification-button,
+  .dashboard-profile {
+    display: none;
+  }
+
+  .dashboard-add-button {
+    width: 42px;
+    padding: 0;
+  }
+
+  .dashboard-add-button {
+    font-size: 0;
+  }
+
+  .dashboard-add-button span {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-content {
+    padding: 28px 16px 55px;
+  }
+
+  .dashboard-welcome-section {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-welcome-add {
+    align-self: flex-start;
+  }
+
+  .dashboard-stat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dashboard-rediscover-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .dashboard-rediscover-card > button {
+    grid-column: 1 / -1;
+  }
+
+  .dashboard-filter-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-filter-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-filter-buttons {
+    overflow-x: auto;
+  }
+
+  .dashboard-filter-button {
+    flex: 0 0 auto;
+  }
+
+  .dashboard-sort-select {
+    width: 100%;
+  }
+
+  .saved-items-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .item-type-options {
+    grid-template-columns: 1fr;
+  }
+
+  .item-type-option {
+    min-height: 70px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1452,14 +1625,6 @@
     padding: 22px 20px;
   }
 
-  .item-type-selector {
-    grid-template-columns: 1fr;
-  }
-
-  .item-type-button {
-    min-height: 70px;
-  }
-
   .add-item-form-actions {
     flex-direction: column-reverse;
   }
@@ -1467,296 +1632,43 @@
   .add-item-form-actions button {
     width: 100%;
   }
-}
 
-/* =====================================================
-   BUTTON ANIMATIONS
-===================================================== */
-
-.dashboard-page button,
-.dashboard-page a {
-  -webkit-tap-highlight-color: transparent;
-}
-
-.dashboard-page button {
-  position: relative;
-  overflow: hidden;
-  transform: translateZ(0);
-  transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease,
-    border-color 180ms ease,
-    color 180ms ease,
-    filter 180ms ease;
-}
-
-.dashboard-page button:active {
-  transform: scale(0.96);
-}
-
-.dashboard-page button:focus-visible,
-.dashboard-page a:focus-visible,
-.dashboard-page select:focus-visible,
-.dashboard-page input:focus-visible,
-.dashboard-page textarea:focus-visible {
-  outline: 3px solid rgba(99, 102, 241, 0.28);
-  outline-offset: 3px;
-}
-
-.dashboard-add-button,
-.dashboard-welcome-add,
-.dashboard-primary-action,
-.add-item-save-button {
-  isolation: isolate;
-}
-
-.dashboard-add-button::before,
-.dashboard-welcome-add::before,
-.dashboard-primary-action::before,
-.add-item-save-button::before {
-  position: absolute;
-  top: 0;
-  left: -120%;
-  z-index: -1;
-  width: 70%;
-  height: 100%;
-  content: "";
-  background: linear-gradient(
-    110deg,
-    transparent,
-    rgba(255, 255, 255, 0.38),
-    transparent
-  );
-  transform: skewX(-20deg);
-  transition: left 500ms ease;
-}
-
-.dashboard-add-button:hover::before,
-.dashboard-welcome-add:hover::before,
-.dashboard-primary-action:hover::before,
-.add-item-save-button:hover::before {
-  left: 140%;
-}
-
-.dashboard-add-button:hover,
-.add-item-save-button:hover,
-.dashboard-primary-action:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 32px rgba(67, 56, 202, 0.28);
-}
-
-.dashboard-welcome-add:hover {
-  transform: translateY(-3px);
-  background: #f8f9ff;
-  box-shadow: 0 14px 28px rgba(79, 70, 229, 0.12);
-}
-
-.dashboard-add-button span,
-.dashboard-welcome-add span {
-  display: inline-block;
-  transition: transform 250ms ease;
-}
-
-.dashboard-add-button:hover span,
-.dashboard-welcome-add:hover span {
-  transform: rotate(90deg) scale(1.15);
-}
-
-.dashboard-nav-item:hover .dashboard-nav-icon,
-.dashboard-settings-button:hover span,
-.dashboard-logout-button:hover span {
-  animation: dashboard-icon-bounce 420ms ease;
-}
-
-.dashboard-collections-heading button {
-  transition:
-    transform 220ms ease,
-    background 220ms ease,
-    color 220ms ease,
-    box-shadow 220ms ease;
-}
-
-.dashboard-collections-heading button:hover {
-  color: white;
-  background: #4f46e5;
-  transform: rotate(90deg) scale(1.08);
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
-}
-
-.dashboard-filter-button:hover {
-  transform: translateY(-2px);
-  background: #f5f3ff;
-}
-
-.dashboard-filter-button-active {
-  animation: dashboard-filter-pop 240ms ease;
-  box-shadow: 0 5px 12px rgba(79, 70, 229, 0.1);
-}
-
-.saved-item-favourite:hover {
-  transform: rotate(-10deg) scale(1.16);
-}
-
-.saved-item-favourite-active {
-  animation: dashboard-star-pop 350ms ease;
-}
-
-.saved-item-open-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.14);
-}
-
-.saved-item-delete-button:hover {
-  transform: translateY(-2px);
-}
-
-.saved-item-delete-button:active,
-.saved-item-open-button:active {
-  transform: scale(0.94);
-}
-
-.dashboard-notification-button:hover {
-  color: #4338ca;
-  border-color: #c7d2fe;
-  background: #eef2ff;
-  transform: translateY(-2px) rotate(-4deg);
-  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.12);
-}
-
-.notification-dot {
-  animation: dashboard-notification-pulse 1.8s infinite;
-}
-
-.dashboard-profile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 9px 20px rgba(31, 41, 55, 0.08);
-}
-
-.dashboard-avatar,
-.dashboard-profile-arrow {
-  transition: transform 220ms ease;
-}
-
-.dashboard-profile:hover .dashboard-avatar {
-  transform: scale(1.08) rotate(4deg);
-}
-
-.dashboard-profile:hover .dashboard-profile-arrow {
-  transform: translateY(2px);
-}
-
-.add-item-modal-close:hover {
-  transform: rotate(90deg) scale(1.08);
-}
-
-.add-item-cancel-button:hover {
-  transform: translateY(-2px);
-  border-color: #cbd5e1;
-  box-shadow: 0 8px 17px rgba(15, 23, 42, 0.07);
-}
-
-.item-type-button:active {
-  transform: scale(0.98);
-}
-
-.item-type-button-active .item-type-icon {
-  animation: dashboard-type-icon-pop 300ms ease;
-}
-
-.screenshot-upload-area:active {
-  transform: scale(0.99);
-}
-
-.dashboard-rediscover-card > button {
-  position: relative;
-  overflow: hidden;
-  transition:
-    transform 180ms ease,
-    background 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.dashboard-rediscover-card > button:hover {
-  color: white;
-  background: #4f46e5;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(79, 70, 229, 0.2);
-}
-
-@keyframes dashboard-icon-bounce {
-  0% {
-    transform: translateY(0) scale(1);
+  .dashboard-api-error {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
-  35% {
-    transform: translateY(-4px) scale(1.12);
-  }
-
-  65% {
-    transform: translateY(1px) scale(0.98);
-  }
-
-  100% {
-    transform: translateY(0) scale(1);
+  .dashboard-api-error button {
+    width: 100%;
   }
 }
 
-@keyframes dashboard-filter-pop {
-  0% {
-    transform: scale(0.92);
+@media (max-width: 480px) {
+  .dashboard-stat-grid {
+    grid-template-columns: 1fr;
   }
 
-  65% {
-    transform: scale(1.06);
+  .dashboard-stat-card {
+    padding: 17px;
   }
 
-  100% {
-    transform: scale(1);
+  .dashboard-welcome-section h1 {
+    font-size: 2rem;
+  }
+
+  .dashboard-empty-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .dashboard-empty-actions button {
+    width: 100%;
   }
 }
 
-@keyframes dashboard-star-pop {
-  0% {
-    transform: scale(0.6) rotate(-25deg);
-  }
-
-  60% {
-    transform: scale(1.3) rotate(10deg);
-  }
-
-  100% {
-    transform: scale(1) rotate(0);
-  }
-}
-
-@keyframes dashboard-notification-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55);
-  }
-
-  70% {
-    box-shadow: 0 0 0 7px rgba(239, 68, 68, 0);
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
-  }
-}
-
-@keyframes dashboard-type-icon-pop {
-  0% {
-    transform: scale(0.75) rotate(-10deg);
-  }
-
-  65% {
-    transform: scale(1.15) rotate(5deg);
-  }
-
-  100% {
-    transform: scale(1) rotate(0);
-  }
-}
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .dashboard-page *,
@@ -1766,107 +1678,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* ================================
-   API Loading + Error States
-================================ */
-
-.dashboard-api-error {
-  margin-top: 24px;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  border: 1px solid #fecaca;
-  border-radius: 14px;
-  background: #fef2f2;
-}
-
-.dashboard-api-error strong {
-  color: #991b1b;
-  font-size: 0.84rem;
-}
-
-.dashboard-api-error p {
-  margin: 4px 0 0;
-  color: #b91c1c;
-  font-size: 0.74rem;
-  line-height: 1.5;
-}
-
-.dashboard-api-error button {
-  min-height: 38px;
-  padding: 0 13px;
-  border: 1px solid #ef4444;
-  border-radius: 9px;
-  background: white;
-  color: #dc2626;
-  font-size: 0.72rem;
-  font-weight: 750;
-}
-
-.dashboard-api-error button:hover {
-  background: #dc2626;
-  color: white;
-}
-
-.dashboard-loading-state {
-  min-height: 320px;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e3e7ef;
-  border-radius: 18px;
-  background: white;
-  text-align: center;
-}
-
-.dashboard-loading-spinner {
-  width: 42px;
-  height: 42px;
-  border: 4px solid #e0e7ff;
-  border-top-color: #4f46e5;
-  border-radius: 50%;
-  animation: dashboard-spin 0.8s linear infinite;
-}
-
-.dashboard-loading-state h3 {
-  margin: 18px 0 0;
-  color: #29354c;
-  font-size: 1rem;
-}
-
-.dashboard-loading-state p {
-  margin: 7px 0 0;
-  color: #8490a3;
-  font-size: 0.76rem;
-}
-
-.add-item-save-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.65;
-  transform: none;
-  box-shadow: none;
-}
-
-@keyframes dashboard-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (max-width: 600px) {
-  .dashboard-api-error {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .dashboard-api-error button {
-    width: 100%;
   }
 }

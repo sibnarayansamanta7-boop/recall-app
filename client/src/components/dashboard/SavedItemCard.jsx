@@ -2,207 +2,76 @@ function SavedItemCard({
   item,
   onToggleFavourite,
   onDelete,
+  onEdit,
 }) {
-  const safeItem = item || {};
+  const itemId = item._id || item.id;
 
-  const itemId =
-    safeItem._id ||
-    safeItem.id ||
-    "";
-
-  const dateValue =
-    safeItem.createdAt ||
-    safeItem.savedAt;
-
-  const parsedDate =
-    dateValue
-      ? new Date(dateValue)
-      : null;
-
-  const formattedDate =
-    parsedDate &&
-    !Number.isNaN(
-      parsedDate.getTime()
-    )
-      ? new Intl.DateTimeFormat(
-          "en-IN",
-          {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          }
-        ).format(parsedDate)
-      : "Recently";
-
-  const safeTags =
-    Array.isArray(
-      safeItem.tags
-    )
-      ? safeItem.tags.filter(
-          (tag) =>
-            typeof tag ===
-              "string" &&
-            tag.trim().length > 0
-        )
-      : [];
-
-  const safeTitle =
-    typeof safeItem.title ===
-      "string" &&
-    safeItem.title.trim()
-      ? safeItem.title.trim()
-      : "Untitled item";
-
-  const safeDescription =
-    typeof safeItem.description ===
-      "string" &&
-    safeItem.description.trim()
-      ? safeItem.description.trim()
-      : "No description available.";
-
-  const safeSource =
-    typeof safeItem.source ===
-      "string" &&
-    safeItem.source.trim()
-      ? safeItem.source.trim()
-      : "Unknown source";
-
-  const safeUserNote =
-    typeof safeItem.userNote ===
-      "string" &&
-    safeItem.userNote.trim()
-      ? safeItem.userNote.trim()
-      : "No personal note added.";
-
-  const safeType = [
-    "link",
-    "note",
-    "screenshot",
-  ].includes(safeItem.type)
-    ? safeItem.type
-    : "note";
-
-  const safeThumbnail =
-    typeof safeItem.thumbnail ===
-      "string"
-      ? safeItem.thumbnail
-      : "";
-
-  const safeUrl =
-    typeof safeItem.url ===
-      "string"
-      ? safeItem.url
-      : "";
-
-  function getTypeLabel(type) {
-    if (type === "link") {
-      return "Link";
+  function handleFavourite() {
+    if (typeof onToggleFavourite === "function") {
+      onToggleFavourite(itemId);
     }
-
-    if (
-      type === "screenshot"
-    ) {
-      return "Screenshot";
-    }
-
-    return "Note";
   }
 
-  function getTypeIcon(type) {
-    if (type === "link") {
-      return "↗";
+  function handleDelete() {
+    if (typeof onDelete === "function") {
+      onDelete(itemId);
     }
-
-    if (
-      type === "screenshot"
-    ) {
-      return "▣";
-    }
-
-    return "✎";
   }
 
-  function handleOpenItem() {
-    if (
-      safeType === "link" &&
-      safeUrl
-    ) {
-      window.open(
-        safeUrl,
-        "_blank",
-        "noopener,noreferrer"
-      );
-
-      return;
+  function handleEdit() {
+    if (typeof onEdit === "function") {
+      onEdit(item);
     }
-
-    alert(
-      `Opening "${safeTitle}" will be added later.`
-    );
   }
 
-  function handleFavouriteClick() {
-    if (
-      !itemId ||
-      typeof onToggleFavourite !==
-        "function"
-    ) {
-      return;
-    }
-
-    onToggleFavourite(itemId);
-  }
-
-  function handleDeleteClick() {
-    if (
-      !itemId ||
-      typeof onDelete !==
-        "function"
-    ) {
-      return;
-    }
-
-    onDelete(itemId);
-  }
+  const itemTypeLabel =
+    item.type === "link"
+      ? "Link"
+      : item.type === "note"
+      ? "Note"
+      : "Screenshot";
 
   return (
     <article className="saved-item-card">
-      {safeThumbnail ? (
-        <div className="saved-item-thumbnail-wrapper">
-          <img
-            src={
-              safeThumbnail
-            }
-            alt={safeTitle}
-            className="saved-item-thumbnail"
-          />
+      {item.type === "screenshot" &&
+        item.thumbnail && (
+          <div className="saved-item-thumbnail-wrapper">
+            <img
+              className="saved-item-thumbnail"
+              src={item.thumbnail}
+              alt={item.title}
+            />
 
-          <span
-            className={`saved-item-type saved-item-type-${safeType}`}
-          >
-            {getTypeIcon(
-              safeType
-            )}{" "}
-            {getTypeLabel(
-              safeType
-            )}
-          </span>
-        </div>
-      ) : (
+            <span className="saved-item-type saved-item-type-screenshot">
+              ▣ {itemTypeLabel}
+            </span>
+          </div>
+        )}
+
+      {item.type === "note" && (
         <div className="saved-item-note-preview">
-          <span
-            className={`saved-item-type saved-item-type-${safeType}`}
-          >
-            {getTypeIcon(
-              safeType
-            )}{" "}
-            {getTypeLabel(
-              safeType
-            )}
+          <span className="saved-item-type saved-item-type-note">
+            ✎ {itemTypeLabel}
           </span>
 
           <p>
-            {safeDescription}
+            {item.description ||
+              item.userNote ||
+              "No note preview available."}
+          </p>
+        </div>
+      )}
+
+      {item.type === "link" && (
+        <div className="saved-item-note-preview">
+          <span className="saved-item-type">
+            ↗ {itemTypeLabel}
+          </span>
+
+          <p>
+            {item.description ||
+              item.source ||
+              "Saved website"}
           </p>
         </div>
       )}
@@ -211,97 +80,98 @@ function SavedItemCard({
         <div className="saved-item-heading-row">
           <div>
             <p className="saved-item-source">
-              {safeSource}
+              {item.source || "Unknown source"}
             </p>
 
-            <h3>
-              {safeTitle}
+            <h3 title={item.title}>
+              {item.title}
             </h3>
           </div>
 
           <button
             className={
-              safeItem.isFavourite
+              item.isFavourite
                 ? "saved-item-favourite saved-item-favourite-active"
                 : "saved-item-favourite"
             }
             type="button"
+            onClick={handleFavourite}
             aria-label={
-              safeItem.isFavourite
+              item.isFavourite
                 ? "Remove from favourites"
                 : "Add to favourites"
             }
-            onClick={
-              handleFavouriteClick
-            }
           >
-            {safeItem.isFavourite
-              ? "★"
-              : "☆"}
+            ★
           </button>
         </div>
 
-        {safeThumbnail && (
+        {item.description && (
           <p className="saved-item-description">
-            {safeDescription}
+            {item.description}
           </p>
         )}
 
-        <div className="saved-item-tags">
-          {safeTags.length >
-          0 ? (
-            safeTags.map(
-              (tag, index) => (
-                <span
-                  key={`${tag}-${index}`}
-                >
-                  {tag}
+        {Array.isArray(item.tags) &&
+          item.tags.length > 0 && (
+            <div className="saved-item-tags">
+              {item.tags.map((tag, index) => (
+                <span key={`${tag}-${index}`}>
+                  #{tag}
                 </span>
-              )
-            )
-          ) : (
-            <span>
-              No tags
-            </span>
+              ))}
+            </div>
           )}
-        </div>
 
-        <div className="saved-item-note">
-          <strong>
-            Why I saved this
-          </strong>
+        {item.userNote && (
+          <div className="saved-item-note">
+            <strong>Why did you save this?</strong>
 
-          <p>
-            {safeUserNote}
-          </p>
-        </div>
+            <p>{item.userNote}</p>
+          </div>
+        )}
 
         <div className="saved-item-footer">
           <span>
-            Saved{" "}
-            {formattedDate}
+            {item.createdAt
+              ? new Date(
+                  item.createdAt
+                ).toLocaleDateString("en-IN")
+              : "Recently saved"}
           </span>
 
           <div className="saved-item-actions">
             <button
+              className="saved-item-edit-button"
+              type="button"
+              onClick={handleEdit}
+            >
+              Edit
+            </button>
+
+            <button
               className="saved-item-delete-button"
               type="button"
-              onClick={
-                handleDeleteClick
-              }
+              onClick={handleDelete}
             >
               Delete
             </button>
 
-            <button
-              className="saved-item-open-button"
-              type="button"
-              onClick={
-                handleOpenItem
-              }
-            >
-              Open
-            </button>
+            {item.url && (
+              <button
+                className="saved-item-open-button"
+                type="button"
+                onClick={() =>
+                  window.open(
+                    item.url,
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+              >
+                Open
+              </button>
+            )}
           </div>
         </div>
       </div>

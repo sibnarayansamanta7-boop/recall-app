@@ -3,6 +3,7 @@ function DashboardHeader({
   onSearchChange,
   onMenuClick,
   onAddItem,
+  currentUser = {},
 }) {
   function handleSearchChange(event) {
     if (typeof onSearchChange === "function") {
@@ -22,13 +23,22 @@ function DashboardHeader({
     }
   }
 
+  const userName = currentUser?.name?.trim() || "User";
+
+  const userInitials = userName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
+
   return (
     <header className="dashboard-header">
       <button
         className="dashboard-menu-button"
         type="button"
-        aria-label="Open sidebar"
         onClick={handleMenuClick}
+        aria-label="Open menu"
       >
         ☰
       </button>
@@ -74,14 +84,14 @@ function DashboardHeader({
         <button
           className="dashboard-profile"
           type="button"
-          aria-label="Open profile menu"
+          aria-label={`Profile of ${userName}`}
         >
           <span className="dashboard-avatar">
-            SS
+            {userInitials || "U"}
           </span>
 
           <span className="dashboard-profile-text">
-            <strong>Sibnarayan</strong>
+            <strong>{userName}</strong>
             <small>Free account</small>
           </span>
 

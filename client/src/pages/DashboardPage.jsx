@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+
 import AddItemModal from "../components/dashboard/AddItemModal";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import DashboardSidebar from "../components/dashboard/DashboardSidebar";
@@ -11,17 +12,31 @@ import {
   createItem,
   deleteItem,
   fetchItems,
+  updateItem,
 } from "../services/itemApi";
+
+import { getCurrentUser } from "../services/authApi";
 
 import "../styles/dashboard.css";
 
 function DashboardPage() {
   const [items, setItems] = useState([]);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [activeSection, setActiveSection] = useState("home");
-  const [sortOrder, setSortOrder] = useState("newest");
+  const [currentUser, setCurrentUser] = useState({
+    name: "User",
+  });
+
+  const [activeSection, setActiveSection] =
+    useState("home");
+
+  const [activeFilter, setActiveFilter] =
+    useState("all");
+
+  const [sortOrder, setSortOrder] =
+    useState("newest");
+
+  const [searchQuery, setSearchQuery] =
+    useState("");
 
   const [isSidebarOpen, setIsSidebarOpen] =
     useState(false);
@@ -29,297 +44,74 @@ function DashboardPage() {
   const [isAddModalOpen, setIsAddModalOpen] =
     useState(false);
 
+  const [editingItem, setEditingItem] =
+    useState(null);
+
   const [isLoading, setIsLoading] =
     useState(true);
-
-  const [errorMessage, setErrorMessage] =
-    useState("");
 
   const [isSaving, setIsSaving] =
     useState(false);
 
+  const [error, setError] =
+    useState("");
+
   useEffect(() => {
-    loadItems();
+    loadDashboard();
   }, []);
+
+  async function loadDashboard() {
+    await Promise.all([
+      loadItems(),
+      loadUser(),
+    ]);
+  }
 
   async function loadItems() {
     try {
       setIsLoading(true);
-      setErrorMessage("");
+      setError("");
 
-      const databaseItems = await fetchItems();
+      const data = await fetchItems();
 
-      setItems(databaseItems);
+      setItems(data.items || []);
     } catch (error) {
       console.error(
         "Failed to load items:",
         error
       );
 
-      setErrorMessage(
-        "Could not load your saved items. Make sure the backend is running."
+      setError(
+        error.message ||
+          "Unable to load your saved items."
       );
     } finally {
       setIsLoading(false);
     }
   }
 
-  function handleSectionChange(section) {
-    setActiveSection(section);
-
-    if (section === "favourites") {
-      setActiveFilter("favourite");
-    } else if (section === "links") {
-      setActiveFilter("link");
-    } else if (section === "notes") {
-      setActiveFilter("note");
-    } else if (section === "screenshots") {
-      setActiveFilter("screenshot");
-    } else {
-      setActiveFilter("all");
-    }
-  }
-
-  function handleOpenAddModal() {
-    setIsAddModalOpen(true);
-  }
-
-  function handleCloseAddModal() {
-    if (!isSaving) {
-      setIsAddModalOpen(false);
-    }
-  }
-
-  async function handleAddItem(newItem) {
+  async function loadUser() {
     try {
-      setIsSaving(true);
-      setErrorMessage("");
+      const user = await getCurrentUser();
 
-      const itemToSend = {
-        type: newItem.type,
-        title: newItem.title,
-        description:
-          newItem.description || "",
-        source:
-          newItem.source ||
-          "Unknown source",
-        url: newItem.url || "",
-        tags: Array.isArray(newItem.tags)
-          ? newItem.tags
-          : [],
-        userNote:
-          newItem.userNote || "",
-        thumbnail:
-          newItem.thumbnail || "",
-      };
-
-      const savedItem =
-        await createItem(itemToSend);
-
-      setItems((currentItems) => [
-        savedItem,
-        ...currentItems,
-      ]);
-
-      setSearchQuery("");
-      setActiveFilter("all");
-      setActiveSection("home");
-
-      setIsAddModalOpen(false);
+      setCurrentUser(user);
     } catch (error) {
       console.error(
-        "Failed to save item:",
+        "Failed to load current user:",
         error
       );
-
-      setErrorMessage(error.message);
-    } finally {
-      setIsSaving(false);
     }
   }
 
-  function handleToggleFavourite(itemId) {
-    setItems((currentItems) =>
-      currentItems.map((item) =>
-        getItemId(item) === itemId
-          ? {
-              ...item,
-              isFavourite:
-                !item.isFavourite,
-            }
-          : item
-      )
-    );
-  }
+  const currentHour =
+    new Date().getHours();
 
-  async function handleDeleteItem(itemId) {
-    const itemToDelete = items.find(
-      (item) =>
-        getItemId(item) === itemId
-    );
-
-    const shouldDelete =
-      window.confirm(
-        `Delete "${
-          itemToDelete?.title ||
-          "this item"
-        }"?`
-      );
-
-    if (!shouldDelete) {
-      return;
-    }
-
-    try {
-      setErrorMessage("");
-
-      await deleteItem(itemId);
-
-      setItems((currentItems) =>
-        currentItems.filter(
-          (item) =>
-            getItemId(item) !== itemId
-        )
-      );
-    } catch (error) {
-      console.error(
-        "Failed to delete item:",
-        error
-      );
-
-      setErrorMessage(error.message);
-    }
-  }
-
-  function handleClearFilters() {
-    setSearchQuery("");
-    setActiveFilter("all");
-    setActiveSection("home");
-  }
-
-  const filteredItems = useMemo(() => {
-    const normalizedSearch =
-      String(searchQuery)
-        .trim()
-        .toLowerCase();
-
-    const matchingItems =
-      items.filter((item) => {
-        const title = String(
-          item?.title || ""
-        ).toLowerCase();
-
-        const description = String(
-          item?.description || ""
-        ).toLowerCase();
-
-        const source = String(
-          item?.source || ""
-        ).toLowerCase();
-
-        const userNote = String(
-          item?.userNote || ""
-        ).toLowerCase();
-
-        const tags = Array.isArray(
-          item?.tags
-        )
-          ? item.tags.map((tag) =>
-              String(tag).toLowerCase()
-            )
-          : [];
-
-        const matchesSearch =
-          !normalizedSearch ||
-          title.includes(
-            normalizedSearch
-          ) ||
-          description.includes(
-            normalizedSearch
-          ) ||
-          source.includes(
-            normalizedSearch
-          ) ||
-          userNote.includes(
-            normalizedSearch
-          ) ||
-          tags.some((tag) =>
-            tag.includes(
-              normalizedSearch
-            )
-          );
-
-        const matchesFilter =
-          activeFilter === "all" ||
-          item?.type === activeFilter ||
-          (activeFilter ===
-            "favourite" &&
-            Boolean(
-              item?.isFavourite
-            ));
-
-        return (
-          matchesSearch &&
-          matchesFilter
-        );
-      });
-
-    return [...matchingItems].sort(
-      (firstItem, secondItem) => {
-        if (
-          sortOrder === "title"
-        ) {
-          return String(
-            firstItem?.title || ""
-          ).localeCompare(
-            String(
-              secondItem?.title || ""
-            )
-          );
-        }
-
-        const firstTime =
-          getItemTime(firstItem);
-
-        const secondTime =
-          getItemTime(secondItem);
-
-        if (
-          sortOrder === "oldest"
-        ) {
-          return (
-            firstTime -
-            secondTime
-          );
-        }
-
-        return (
-          secondTime -
-          firstTime
-        );
-      }
-    );
-  }, [
-    items,
-    searchQuery,
-    activeFilter,
-    sortOrder,
-  ]);
-
-  const totalLinks = items.filter(
-    (item) =>
-      item?.type === "link"
-  ).length;
-
-  const totalNotes = items.filter(
-    (item) =>
-      item?.type === "note"
-  ).length;
-
-  const totalFavourites =
-    items.filter((item) =>
-      Boolean(item?.isFavourite)
-    ).length;
+  const greeting =
+    currentHour < 12
+      ? "Good morning"
+      : currentHour < 18
+      ? "Good afternoon"
+      : "Good evening";
 
   const currentDate =
     new Intl.DateTimeFormat(
@@ -328,8 +120,363 @@ function DashboardPage() {
         weekday: "long",
         day: "numeric",
         month: "long",
+        year: "numeric",
       }
     ).format(new Date());
+
+  const filteredItems = useMemo(() => {
+    let result = [...items];
+
+    if (
+      activeSection === "favourites"
+    ) {
+      result = result.filter(
+        (item) => item.isFavourite
+      );
+    }
+
+    if (
+      activeSection === "links"
+    ) {
+      result = result.filter(
+        (item) =>
+          item.type === "link"
+      );
+    }
+
+    if (
+      activeSection === "notes"
+    ) {
+      result = result.filter(
+        (item) =>
+          item.type === "note"
+      );
+    }
+
+    if (
+      activeSection === "screenshots"
+    ) {
+      result = result.filter(
+        (item) =>
+          item.type === "screenshot"
+      );
+    }
+
+    if (
+      activeFilter === "link" ||
+      activeFilter === "note" ||
+      activeFilter === "screenshot"
+    ) {
+      result = result.filter(
+        (item) =>
+          item.type === activeFilter
+      );
+    }
+
+    if (
+      activeFilter === "favourite"
+    ) {
+      result = result.filter(
+        (item) => item.isFavourite
+      );
+    }
+
+    const normalizedSearch =
+      searchQuery
+        .trim()
+        .toLowerCase();
+
+    if (normalizedSearch) {
+      result = result.filter(
+        (item) => {
+          const searchableText = [
+            item.title,
+            item.description,
+            item.source,
+            item.userNote,
+            ...(Array.isArray(item.tags)
+              ? item.tags
+              : []),
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+          return searchableText.includes(
+            normalizedSearch
+          );
+        }
+      );
+    }
+
+    result.sort((a, b) => {
+      if (sortOrder === "title") {
+        return (
+          a.title || ""
+        ).localeCompare(
+          b.title || ""
+        );
+      }
+
+      const dateA = new Date(
+        a.createdAt ||
+          a.savedAt ||
+          0
+      ).getTime();
+
+      const dateB = new Date(
+        b.createdAt ||
+          b.savedAt ||
+          0
+      ).getTime();
+
+      return sortOrder === "oldest"
+        ? dateA - dateB
+        : dateB - dateA;
+    });
+
+    return result;
+  }, [
+    items,
+    activeSection,
+    activeFilter,
+    searchQuery,
+    sortOrder,
+  ]);
+
+  const stats = useMemo(() => {
+    const total = items.length;
+
+    const links = items.filter(
+      (item) =>
+        item.type === "link"
+    ).length;
+
+    const notes = items.filter(
+      (item) =>
+        item.type === "note"
+    ).length;
+
+    const screenshots = items.filter(
+      (item) =>
+        item.type === "screenshot"
+    ).length;
+
+    const favourites = items.filter(
+      (item) =>
+        item.isFavourite
+    ).length;
+
+    return {
+      total,
+      links,
+      notes,
+      screenshots,
+      favourites,
+    };
+  }, [items]);
+
+  function handleSectionChange(
+    sectionId
+  ) {
+    setActiveSection(sectionId);
+
+    if (
+      sectionId === "home" ||
+      sectionId === "all"
+    ) {
+      setActiveFilter("all");
+    }
+
+    if (
+      sectionId === "favourites"
+    ) {
+      setActiveFilter("favourite");
+    }
+
+    if (sectionId === "links") {
+      setActiveFilter("link");
+    }
+
+    if (sectionId === "notes") {
+      setActiveFilter("note");
+    }
+
+    if (
+      sectionId === "screenshots"
+    ) {
+      setActiveFilter("screenshot");
+    }
+  }
+
+  function handleFilterChange(
+    filterId
+  ) {
+    setActiveFilter(filterId);
+
+    if (filterId === "all") {
+      setActiveSection("all");
+    } else if (
+      filterId === "favourite"
+    ) {
+      setActiveSection("favourites");
+    } else {
+      setActiveSection(filterId);
+    }
+  }
+
+  function handleClearFilters() {
+    setSearchQuery("");
+    setActiveFilter("all");
+    setActiveSection("all");
+  }
+
+  async function handleAddItem(
+    itemData
+  ) {
+    try {
+      setIsSaving(true);
+      setError("");
+
+      if (editingItem) {
+        const itemId =
+          editingItem._id ||
+          editingItem.id;
+
+        const data =
+          await updateItem(
+            itemId,
+            itemData
+          );
+
+        if (data.item) {
+          setItems(
+            (currentItems) =>
+              currentItems.map(
+                (item) =>
+                  (
+                    item._id ||
+                    item.id
+                  ) === itemId
+                    ? data.item
+                    : item
+              )
+          );
+        }
+      } else {
+        const data =
+          await createItem(
+            itemData
+          );
+
+        if (data.item) {
+          setItems(
+            (currentItems) => [
+              data.item,
+              ...currentItems,
+            ]
+          );
+        }
+      }
+
+      setIsAddModalOpen(false);
+      setEditingItem(null);
+    } catch (error) {
+      console.error(
+        "Failed to save item:",
+        error
+      );
+
+      setError(
+        error.message ||
+          "Unable to save this item."
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  function handleEditItem(item) {
+    setEditingItem(item);
+    setIsAddModalOpen(true);
+  }
+
+  function handleToggleFavourite(
+    itemId
+  ) {
+    setItems(
+      (currentItems) =>
+        currentItems.map(
+          (item) =>
+            (
+              item._id ||
+              item.id
+            ) === itemId
+              ? {
+                  ...item,
+                  isFavourite:
+                    !item.isFavourite,
+                }
+              : item
+        )
+    );
+  }
+
+  async function handleDeleteItem(
+    itemId
+  ) {
+    const shouldDelete =
+      window.confirm(
+        "Are you sure you want to delete this saved item?"
+      );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      setError("");
+
+      await deleteItem(itemId);
+
+      setItems(
+        (currentItems) =>
+          currentItems.filter(
+            (item) =>
+              (
+                item._id ||
+                item.id
+              ) !== itemId
+          )
+      );
+    } catch (error) {
+      console.error(
+        "Failed to delete item:",
+        error
+      );
+
+      setError(
+        error.message ||
+          "Unable to delete this item."
+      );
+    }
+  }
+
+  function handleSearchChange(
+    value
+  ) {
+    setSearchQuery(value);
+  }
+
+  function handleOpenAddModal() {
+    setEditingItem(null);
+    setIsAddModalOpen(true);
+  }
+
+  function handleCloseAddModal() {
+    setIsAddModalOpen(false);
+    setEditingItem(null);
+  }
 
   return (
     <div className="dashboard-page">
@@ -338,19 +485,17 @@ function DashboardPage() {
         onSectionChange={
           handleSectionChange
         }
-        isOpen={
-          isSidebarOpen
-        }
+        isOpen={isSidebarOpen}
         onClose={() =>
           setIsSidebarOpen(false)
         }
       />
 
-      <div className="dashboard-main-area">
+      <section className="dashboard-main-area">
         <DashboardHeader
           searchQuery={searchQuery}
           onSearchChange={
-            setSearchQuery
+            handleSearchChange
           }
           onMenuClick={() =>
             setIsSidebarOpen(true)
@@ -360,7 +505,7 @@ function DashboardPage() {
           }
         />
 
-        <main className="dashboard-content">
+        <div className="dashboard-content">
           <section className="dashboard-welcome-section">
             <div>
               <p className="dashboard-eyebrow">
@@ -368,13 +513,19 @@ function DashboardPage() {
               </p>
 
               <h1>
-                Good day, Sibu.
+                {greeting},{" "}
+                {currentUser.name
+                  ? currentUser.name.split(
+                      " "
+                    )[0]
+                  : "User"}
+                .
               </h1>
 
               <p>
-                Everything useful you
-                saved is ready to be
-                rediscovered.
+                Your saved knowledge,
+                ready whenever you
+                need it.
               </p>
             </div>
 
@@ -385,21 +536,19 @@ function DashboardPage() {
                 handleOpenAddModal
               }
             >
-              <span>+</span>
-              Save something
+              <span>＋</span>
+              Add item
             </button>
           </section>
 
-          {errorMessage && (
+          {error && (
             <div className="dashboard-api-error">
               <div>
                 <strong>
                   Something went wrong
                 </strong>
 
-                <p>
-                  {errorMessage}
-                </p>
+                <p>{error}</p>
               </div>
 
               <button
@@ -411,97 +560,75 @@ function DashboardPage() {
             </div>
           )}
 
-          <section
-            className="dashboard-stat-grid"
-            aria-label="Saved item statistics"
-          >
+          <section className="dashboard-stat-grid">
             <StatCard
               icon="▦"
-              label="All saved items"
-              value={items.length}
-              description="Your complete memory"
+              label="Total items"
+              value={stats.total}
+              description="Everything you've saved"
             />
 
             <StatCard
               icon="↗"
               label="Links"
-              value={totalLinks}
+              value={stats.links}
               description="Web resources"
             />
 
             <StatCard
               icon="✎"
               label="Notes"
-              value={totalNotes}
+              value={stats.notes}
               description="Personal knowledge"
+            />
+
+            <StatCard
+              icon="▣"
+              label="Screenshots"
+              value={
+                stats.screenshots
+              }
+              description="Visual memories"
             />
 
             <StatCard
               icon="★"
               label="Favourites"
               value={
-                totalFavourites
+                stats.favourites
               }
-              description="Important memories"
+              description="Your important items"
             />
           </section>
 
-          <section className="dashboard-library-section">
-            <FilterBar
-              activeFilter={
-                activeFilter
-              }
-              onFilterChange={
-                setActiveFilter
-              }
-              sortOrder={
-                sortOrder
-              }
-              onSortChange={
-                setSortOrder
-              }
-              resultCount={
-                filteredItems.length
-              }
-            />
+          <FilterBar
+            activeFilter={
+              activeFilter
+            }
+            onFilterChange={
+              handleFilterChange
+            }
+            sortOrder={sortOrder}
+            onSortChange={
+              setSortOrder
+            }
+            resultCount={
+              filteredItems.length
+            }
+          />
 
+          <section className="dashboard-items-section">
             {isLoading ? (
               <div className="dashboard-loading-state">
                 <div className="dashboard-loading-spinner" />
 
-                <h3>
-                  Loading your memories...
-                </h3>
-
                 <p>
-                  Recall is fetching your
-                  saved items from MongoDB.
+                  Loading your saved
+                  knowledge...
                 </p>
               </div>
-            ) : filteredItems.length >
+            ) : filteredItems.length ===
               0 ? (
-              <div className="saved-items-grid">
-                {filteredItems.map(
-                  (item, index) => (
-                    <SavedItemCard
-                      key={
-                        getItemId(
-                          item
-                        ) ||
-                        `${item?.title || "item"}-${index}`
-                      }
-                      item={item}
-                      onToggleFavourite={
-                        handleToggleFavourite
-                      }
-                      onDelete={
-                        handleDeleteItem
-                      }
-                    />
-                  )
-                )}
-              </div>
-            ) : (
               <EmptyState
                 searchQuery={
                   searchQuery
@@ -513,46 +640,48 @@ function DashboardPage() {
                   handleOpenAddModal
                 }
               />
+            ) : (
+              <div className="dashboard-items-grid">
+                {filteredItems.map(
+                  (item) => (
+                    <SavedItemCard
+                      key={
+                        item._id ||
+                        item.id
+                      }
+                      item={item}
+                      onToggleFavourite={
+                        handleToggleFavourite
+                      }
+                      onDelete={
+                        handleDeleteItem
+                      }
+                      onEdit={
+                        handleEditItem
+                      }
+                    />
+                  )
+                )}
+              </div>
             )}
           </section>
-        </main>
-      </div>
+        </div>
+      </section>
 
-      <AddItemModal
-        isOpen={isAddModalOpen}
-        onClose={
-          handleCloseAddModal
-        }
-        onAddItem={
-          handleAddItem
-        }
-        isSaving={
-          isSaving
-        }
-      />
+      {isAddModalOpen && (
+        <AddItemModal
+          item={editingItem}
+          onClose={
+            handleCloseAddModal
+          }
+          onSubmit={
+            handleAddItem
+          }
+          isSaving={isSaving}
+        />
+      )}
     </div>
   );
-}
-
-function getItemId(item) {
-  return item?._id || item?.id;
-}
-
-function getItemTime(item) {
-  const dateValue =
-    item?.createdAt ||
-    item?.savedAt;
-
-  if (!dateValue) {
-    return 0;
-  }
-
-  const time =
-    new Date(dateValue).getTime();
-
-  return Number.isNaN(time)
-    ? 0
-    : time;
 }
 
 export default DashboardPage;
