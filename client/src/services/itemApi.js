@@ -1,30 +1,23 @@
-const API_BASE_URL = "http://localhost:8001/api";
+import { getAuthToken } from "./authApi";
 
-function getAuthToken() {
-  return localStorage.getItem("recall_token");
-}
-
-function getAuthHeaders() {
-  const token = getAuthToken();
-
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-}
+const API_BASE_URL =
+  "http://localhost:8001/api";
 
 export async function fetchItems() {
+  const token = getAuthToken();
+
   const response = await fetch(
     `${API_BASE_URL}/items`,
     {
-      method: "GET",
-      headers: getAuthHeaders(),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 
   const data = await response.json();
 
-  if (!response.ok || !data.success) {
+  if (!response.ok) {
     throw new Error(
       data.message ||
         "Failed to load saved items."
@@ -35,18 +28,23 @@ export async function fetchItems() {
 }
 
 export async function createItem(itemData) {
+  const token = getAuthToken();
+
   const response = await fetch(
     `${API_BASE_URL}/items`,
     {
       method: "POST",
-      headers: getAuthHeaders(),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(itemData),
     }
   );
 
   const data = await response.json();
 
-  if (!response.ok || !data.success) {
+  if (!response.ok) {
     throw new Error(
       data.message ||
         "Failed to save item."
@@ -60,18 +58,23 @@ export async function updateItem(
   itemId,
   itemData
 ) {
+  const token = getAuthToken();
+
   const response = await fetch(
     `${API_BASE_URL}/items/${itemId}`,
     {
       method: "PUT",
-      headers: getAuthHeaders(),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(itemData),
     }
   );
 
   const data = await response.json();
 
-  if (!response.ok || !data.success) {
+  if (!response.ok) {
     throw new Error(
       data.message ||
         "Failed to update item."
@@ -81,20 +84,49 @@ export async function updateItem(
   return data;
 }
 
-export async function toggleFavourite(
-  itemId
-) {
+export async function deleteItem(itemId) {
+  const token = getAuthToken();
+
   const response = await fetch(
-    `${API_BASE_URL}/items/${itemId}/favourite`,
+    `${API_BASE_URL}/items/${itemId}`,
     {
-      method: "PATCH",
-      headers: getAuthHeaders(),
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 
   const data = await response.json();
 
-  if (!response.ok || !data.success) {
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+        "Failed to delete item."
+    );
+  }
+
+  return data;
+}
+
+export async function toggleFavourite(
+  itemId
+) {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/items/${itemId}/favourite`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
     throw new Error(
       data.message ||
         "Failed to update favourite."
@@ -104,21 +136,105 @@ export async function toggleFavourite(
   return data;
 }
 
-export async function deleteItem(itemId) {
+export async function createShare(
+  itemId,
+  expiresIn
+) {
+  const token = getAuthToken();
+
   const response = await fetch(
-    `${API_BASE_URL}/items/${itemId}`,
+    `${API_BASE_URL}/items/${itemId}/share`,
     {
-      method: "DELETE",
-      headers: getAuthHeaders(),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        expiresIn,
+      }),
     }
   );
 
   const data = await response.json();
 
-  if (!response.ok || !data.success) {
+  if (!response.ok) {
     throw new Error(
       data.message ||
-        "Failed to delete item."
+        "Failed to create share."
+    );
+  }
+
+  return data;
+}
+
+export async function regenerateShare(
+  itemId
+) {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/items/${itemId}/share/regenerate`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+        "Failed to regenerate share."
+    );
+  }
+
+  return data;
+}
+
+export async function disableShare(
+  itemId
+) {
+  const token = getAuthToken();
+
+  const response = await fetch(
+    `${API_BASE_URL}/items/${itemId}/share/disable`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+        "Failed to disable sharing."
+    );
+  }
+
+  return data;
+}
+
+export async function fetchSharedItem(
+  shareCode
+) {
+  const response = await fetch(
+    `${API_BASE_URL}/shared/${shareCode}`
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      data.message ||
+        "Unable to retrieve shared item."
     );
   }
 

@@ -3,6 +3,7 @@ import DashboardPage from "./pages/DashboardPage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import SharedItemPage from "./pages/SharedItemPage";
 
 function App() {
   return (
@@ -12,6 +13,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/shared/:shareCode"
+          element={<SharedItemPage />}
+        />
       </Routes>
     </BrowserRouter>
   );

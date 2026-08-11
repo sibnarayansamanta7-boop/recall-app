@@ -5,8 +5,11 @@ import {
   deleteItem,
   getItemById,
   getItems,
-  toggleFavourite,
   updateItem,
+  toggleFavourite,
+  createShare,
+  regenerateShare,
+  disableShare,
 } from "../controllers/itemController.js";
 
 import protect from "../middleware/authMiddleware.js";
@@ -17,11 +20,6 @@ router.use(protect);
 
 router.get("/", getItems);
 
-router.patch(
-  "/:id/favourite",
-  toggleFavourite
-);
-
 router.get("/:id", getItemById);
 
 router.post("/", createItem);
@@ -29,5 +27,25 @@ router.post("/", createItem);
 router.put("/:id", updateItem);
 
 router.delete("/:id", deleteItem);
+
+router.patch(
+  "/:id/favourite",
+  toggleFavourite
+);
+
+router.post(
+  "/:id/share",
+  createShare
+);
+
+router.post(
+  "/:id/share/regenerate",
+  regenerateShare
+);
+
+router.patch(
+  "/:id/share/disable",
+  disableShare
+);
 
 export default router;

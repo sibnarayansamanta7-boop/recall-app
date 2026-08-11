@@ -3,178 +3,89 @@ function SavedItemCard({
   onToggleFavourite,
   onDelete,
   onEdit,
+  onShare,
 }) {
-  const itemId = item._id || item.id;
+  const id = item?._id || item?.id;
 
-  function handleFavourite() {
-    if (typeof onToggleFavourite === "function") {
-      onToggleFavourite(itemId);
-    }
-  }
+  const title = item?.title || "Untitled";
 
-  function handleDelete() {
-    if (typeof onDelete === "function") {
-      onDelete(itemId);
-    }
-  }
+  const content =
+    item?.content ||
+    item?.description ||
+    item?.text ||
+    "";
 
-  function handleEdit() {
-    if (typeof onEdit === "function") {
-      onEdit(item);
-    }
-  }
+  const type =
+    item?.type ||
+    item?.itemType ||
+    "note";
 
-  const itemTypeLabel =
-    item.type === "link"
-      ? "Link"
-      : item.type === "note"
-      ? "Note"
-      : "Screenshot";
+  const favourite =
+    item?.isFavourite ||
+    item?.favourite ||
+    false;
+
+  const date = item?.createdAt
+    ? new Date(item.createdAt).toLocaleDateString()
+    : "";
 
   return (
     <article className="saved-item-card">
-      {item.type === "screenshot" &&
-        item.thumbnail && (
-          <div className="saved-item-thumbnail-wrapper">
-            <img
-              className="saved-item-thumbnail"
-              src={item.thumbnail}
-              alt={item.title}
-            />
 
-            <span className="saved-item-type saved-item-type-screenshot">
-              ▣ {itemTypeLabel}
-            </span>
-          </div>
-        )}
+      <div className="saved-item-top">
+        <span className="saved-item-type">
+          {type === "link" ? "↗ Link" : "✎ Note"}
+        </span>
 
-      {item.type === "note" && (
-        <div className="saved-item-note-preview">
-          <span className="saved-item-type saved-item-type-note">
-            ✎ {itemTypeLabel}
-          </span>
+        <button
+          type="button"
+          className={
+            favourite
+              ? "favourite-button active"
+              : "favourite-button"
+          }
+          onClick={() => onToggleFavourite(id)}
+        >
+          ★
+        </button>
+      </div>
 
-          <p>
-            {item.description ||
-              item.userNote ||
-              "No note preview available."}
-          </p>
-        </div>
-      )}
+      <div className="saved-item-body">
+        <h3>{title}</h3>
 
-      {item.type === "link" && (
-        <div className="saved-item-note-preview">
-          <span className="saved-item-type">
-            ↗ {itemTypeLabel}
-          </span>
+        {content && <p>{content}</p>}
+      </div>
 
-          <p>
-            {item.description ||
-              item.source ||
-              "Saved website"}
-          </p>
-        </div>
-      )}
+      <div className="saved-item-footer">
+        <span>{date}</span>
 
-      <div className="saved-item-content">
-        <div className="saved-item-heading-row">
-          <div>
-            <p className="saved-item-source">
-              {item.source || "Unknown source"}
-            </p>
-
-            <h3 title={item.title}>
-              {item.title}
-            </h3>
-          </div>
+        <div className="saved-item-actions">
 
           <button
-            className={
-              item.isFavourite
-                ? "saved-item-favourite saved-item-favourite-active"
-                : "saved-item-favourite"
-            }
             type="button"
-            onClick={handleFavourite}
-            aria-label={
-              item.isFavourite
-                ? "Remove from favourites"
-                : "Add to favourites"
-            }
+            onClick={() => onEdit(item)}
           >
-            ★
+            Edit
           </button>
-        </div>
 
-        {item.description && (
-          <p className="saved-item-description">
-            {item.description}
-          </p>
-        )}
+          <button
+            type="button"
+            onClick={() => onShare(item)}
+          >
+            Share
+          </button>
 
-        {Array.isArray(item.tags) &&
-          item.tags.length > 0 && (
-            <div className="saved-item-tags">
-              {item.tags.map((tag, index) => (
-                <span key={`${tag}-${index}`}>
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+          <button
+            type="button"
+            className="delete-button"
+            onClick={() => onDelete(id)}
+          >
+            Delete
+          </button>
 
-        {item.userNote && (
-          <div className="saved-item-note">
-            <strong>Why did you save this?</strong>
-
-            <p>{item.userNote}</p>
-          </div>
-        )}
-
-        <div className="saved-item-footer">
-          <span>
-            {item.createdAt
-              ? new Date(
-                  item.createdAt
-                ).toLocaleDateString("en-IN")
-              : "Recently saved"}
-          </span>
-
-          <div className="saved-item-actions">
-            <button
-              className="saved-item-edit-button"
-              type="button"
-              onClick={handleEdit}
-            >
-              Edit
-            </button>
-
-            <button
-              className="saved-item-delete-button"
-              type="button"
-              onClick={handleDelete}
-            >
-              Delete
-            </button>
-
-            {item.url && (
-              <button
-                className="saved-item-open-button"
-                type="button"
-                onClick={() =>
-                  window.open(
-                    item.url,
-                    "_blank",
-                    "noopener,noreferrer"
-                  )
-                }
-              >
-                Open
-              </button>
-            )}
-          </div>
         </div>
       </div>
+
     </article>
   );
 }

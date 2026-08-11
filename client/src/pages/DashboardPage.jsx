@@ -7,12 +7,14 @@ import EmptyState from "../components/dashboard/EmptyState";
 import FilterBar from "../components/dashboard/FilterBar";
 import SavedItemCard from "../components/dashboard/SavedItemCard";
 import StatCard from "../components/dashboard/StatCard";
+import ShareItemModal from "../components/dashboard/ShareItemModal";
 
 import {
   createItem,
   deleteItem,
   fetchItems,
   updateItem,
+  toggleFavourite,
 } from "../services/itemApi";
 
 import { getCurrentUser } from "../services/authApi";
@@ -39,12 +41,15 @@ function DashboardPage() {
     useState("");
 
   const [isSidebarOpen, setIsSidebarOpen] =
-    useState(false);
+  useState(window.innerWidth > 1024);
 
   const [isAddModalOpen, setIsAddModalOpen] =
     useState(false);
 
   const [editingItem, setEditingItem] =
+    useState(null);
+
+  const [sharingItem, setSharingItem] =
     useState(null);
 
   const [isLoading, setIsLoading] =
@@ -74,7 +79,11 @@ function DashboardPage() {
 
       const data = await fetchItems();
 
-      setItems(data.items || []);
+      setItems(
+        Array.isArray(data)
+          ? data
+          : data.items || []
+      );
     } catch (error) {
       console.error(
         "Failed to load items:",
@@ -114,51 +123,37 @@ function DashboardPage() {
       : "Good evening";
 
   const currentDate =
-    new Intl.DateTimeFormat(
-      "en-IN",
-      {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }
-    ).format(new Date());
+    new Intl.DateTimeFormat("en-IN", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(new Date());
 
   const filteredItems = useMemo(() => {
     let result = [...items];
 
-    if (
-      activeSection === "favourites"
-    ) {
+    if (activeSection === "favourites") {
       result = result.filter(
         (item) => item.isFavourite
       );
     }
 
-    if (
-      activeSection === "links"
-    ) {
+    if (activeSection === "links") {
       result = result.filter(
-        (item) =>
-          item.type === "link"
+        (item) => item.type === "link"
       );
     }
 
-    if (
-      activeSection === "notes"
-    ) {
+    if (activeSection === "notes") {
       result = result.filter(
-        (item) =>
-          item.type === "note"
+        (item) => item.type === "note"
       );
     }
 
-    if (
-      activeSection === "screenshots"
-    ) {
+    if (activeSection === "screenshots") {
       result = result.filter(
-        (item) =>
-          item.type === "screenshot"
+        (item) => item.type === "screenshot"
       );
     }
 
@@ -182,39 +177,36 @@ function DashboardPage() {
     }
 
     const normalizedSearch =
-      searchQuery
-        .trim()
-        .toLowerCase();
+      searchQuery.trim().toLowerCase();
 
     if (normalizedSearch) {
-      result = result.filter(
-        (item) => {
-          const searchableText = [
-            item.title,
-            item.description,
-            item.source,
-            item.userNote,
-            ...(Array.isArray(item.tags)
-              ? item.tags
-              : []),
-          ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase();
+      result = result.filter((item) => {
+        const searchableText = [
+          item.title,
+          item.description,
+          item.source,
+          item.userNote,
+          item.url,
+          ...(Array.isArray(item.tags)
+            ? item.tags
+            : []),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
 
-          return searchableText.includes(
-            normalizedSearch
-          );
-        }
-      );
+        return searchableText.includes(
+          normalizedSearch
+        );
+      });
     }
 
     result.sort((a, b) => {
       if (sortOrder === "title") {
         return (
-          a.title || ""
-        ).localeCompare(
-          b.title || ""
+          (a.title || "").localeCompare(
+            b.title || ""
+          )
         );
       }
 
@@ -248,13 +240,11 @@ function DashboardPage() {
     const total = items.length;
 
     const links = items.filter(
-      (item) =>
-        item.type === "link"
+      (item) => item.type === "link"
     ).length;
 
     const notes = items.filter(
-      (item) =>
-        item.type === "note"
+      (item) => item.type === "note"
     ).length;
 
     const screenshots = items.filter(
@@ -263,8 +253,7 @@ function DashboardPage() {
     ).length;
 
     const favourites = items.filter(
-      (item) =>
-        item.isFavourite
+      (item) => item.isFavourite
     ).length;
 
     return {
@@ -281,16 +270,15 @@ function DashboardPage() {
   ) {
     setActiveSection(sectionId);
 
-    if (
-      sectionId === "home" ||
-      sectionId === "all"
-    ) {
+    if (sectionId === "home") {
       setActiveFilter("all");
     }
 
-    if (
-      sectionId === "favourites"
-    ) {
+    if (sectionId === "all") {
+      setActiveFilter("all");
+    }
+
+    if (sectionId === "favourites") {
       setActiveFilter("favourite");
     }
 
@@ -302,9 +290,7 @@ function DashboardPage() {
       setActiveFilter("note");
     }
 
-    if (
-      sectionId === "screenshots"
-    ) {
+    if (sectionId === "screenshots") {
       setActiveFilter("screenshot");
     }
   }
@@ -331,6 +317,16 @@ function DashboardPage() {
     setActiveSection("all");
   }
 
+  function handleOpenAddModal() {
+    setEditingItem(null);
+    setIsAddModalOpen(true);
+  }
+
+  function handleEditItem(item) {
+    setEditingItem(item);
+    setIsAddModalOpen(true);
+  }
+
   async function handleAddItem(
     itemData
   ) {
@@ -343,44 +339,42 @@ function DashboardPage() {
           editingItem._id ||
           editingItem.id;
 
-        const data =
-          await updateItem(
-            itemId,
-            itemData
-          );
+        const data = await updateItem(
+          itemId,
+          itemData
+        );
 
-        if (data.item) {
-          setItems(
-            (currentItems) =>
-              currentItems.map(
-                (item) =>
-                  (
-                    item._id ||
-                    item.id
-                  ) === itemId
-                    ? data.item
-                    : item
-              )
-          );
-        }
+        const updatedItem =
+          data.item || data;
+
+        setItems(
+          (currentItems) =>
+            currentItems.map((item) =>
+              (item._id || item.id) ===
+              itemId
+                ? updatedItem
+                : item
+            )
+        );
       } else {
         const data =
-          await createItem(
-            itemData
-          );
+          await createItem(itemData);
 
-        if (data.item) {
+        const newItem =
+          data.item || data;
+
+        if (newItem) {
           setItems(
             (currentItems) => [
-              data.item,
+              newItem,
               ...currentItems,
             ]
           );
         }
       }
 
-      setIsAddModalOpen(false);
       setEditingItem(null);
+      setIsAddModalOpen(false);
     } catch (error) {
       console.error(
         "Failed to save item:",
@@ -396,30 +390,35 @@ function DashboardPage() {
     }
   }
 
-  function handleEditItem(item) {
-    setEditingItem(item);
-    setIsAddModalOpen(true);
-  }
-
-  function handleToggleFavourite(
+  async function handleToggleFavourite(
     itemId
   ) {
-    setItems(
-      (currentItems) =>
-        currentItems.map(
-          (item) =>
-            (
-              item._id ||
-              item.id
-            ) === itemId
-              ? {
-                  ...item,
-                  isFavourite:
-                    !item.isFavourite,
-                }
+    try {
+      setError("");
+
+      const data =
+        await toggleFavourite(itemId);
+
+      setItems(
+        (currentItems) =>
+          currentItems.map((item) =>
+            (item._id || item.id) ===
+            itemId
+              ? data.item
               : item
-        )
-    );
+          )
+      );
+    } catch (error) {
+      console.error(
+        "Failed to update favourite:",
+        error
+      );
+
+      setError(
+        error.message ||
+          "Unable to update favourite."
+      );
+    }
   }
 
   async function handleDeleteItem(
@@ -443,10 +442,8 @@ function DashboardPage() {
         (currentItems) =>
           currentItems.filter(
             (item) =>
-              (
-                item._id ||
-                item.id
-              ) !== itemId
+              (item._id || item.id) !==
+              itemId
           )
       );
     } catch (error) {
@@ -462,24 +459,21 @@ function DashboardPage() {
     }
   }
 
-  function handleSearchChange(
-    value
-  ) {
+  function handleShareItem(item) {
+    setSharingItem(item);
+  }
+
+  function handleSearchChange(value) {
     setSearchQuery(value);
   }
 
-  function handleOpenAddModal() {
-    setEditingItem(null);
-    setIsAddModalOpen(true);
-  }
-
-  function handleCloseAddModal() {
+  function handleCloseItemModal() {
     setIsAddModalOpen(false);
     setEditingItem(null);
   }
 
   return (
-    <div className="dashboard-page">
+    <main className="dashboard-layout">
       <DashboardSidebar
         activeSection={activeSection}
         onSectionChange={
@@ -491,24 +485,28 @@ function DashboardPage() {
         }
       />
 
-      <section className="dashboard-main-area">
+      <section className="dashboard-main">
         <DashboardHeader
-          searchQuery={searchQuery}
-          onSearchChange={
-            handleSearchChange
-          }
-          onMenuClick={() =>
-            setIsSidebarOpen(true)
-          }
-          onAddItem={
-            handleOpenAddModal
-          }
-        />
+  searchQuery={searchQuery}
+  onSearchChange={
+    handleSearchChange
+  }
+  onMenuClick={() =>
+    setIsSidebarOpen(
+      (current) => !current
+    )
+  }
+  onAddItem={
+    handleOpenAddModal
+  }
+  currentUser={currentUser}
+  isSidebarOpen={isSidebarOpen}
+/>
 
         <div className="dashboard-content">
-          <section className="dashboard-welcome-section">
+          <section className="dashboard-welcome">
             <div>
-              <p className="dashboard-eyebrow">
+              <p className="dashboard-date">
                 {currentDate}
               </p>
 
@@ -524,13 +522,12 @@ function DashboardPage() {
 
               <p>
                 Your saved knowledge,
-                ready whenever you
-                need it.
+                ready whenever you need it.
               </p>
             </div>
 
             <button
-              className="dashboard-welcome-add"
+              className="dashboard-add-button"
               type="button"
               onClick={
                 handleOpenAddModal
@@ -542,25 +539,12 @@ function DashboardPage() {
           </section>
 
           {error && (
-            <div className="dashboard-api-error">
-              <div>
-                <strong>
-                  Something went wrong
-                </strong>
-
-                <p>{error}</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={loadItems}
-              >
-                Try again
-              </button>
+            <div className="dashboard-error-message">
+              {error}
             </div>
           )}
 
-          <section className="dashboard-stat-grid">
+          <section className="dashboard-stats">
             <StatCard
               icon="▦"
               label="Total items"
@@ -585,26 +569,20 @@ function DashboardPage() {
             <StatCard
               icon="▣"
               label="Screenshots"
-              value={
-                stats.screenshots
-              }
+              value={stats.screenshots}
               description="Visual memories"
             />
 
             <StatCard
               icon="★"
               label="Favourites"
-              value={
-                stats.favourites
-              }
+              value={stats.favourites}
               description="Your important items"
             />
           </section>
 
           <FilterBar
-            activeFilter={
-              activeFilter
-            }
+            activeFilter={activeFilter}
             onFilterChange={
               handleFilterChange
             }
@@ -641,28 +619,18 @@ function DashboardPage() {
                 }
               />
             ) : (
-              <div className="dashboard-items-grid">
-                {filteredItems.map(
-                  (item) => (
-                    <SavedItemCard
-                      key={
-                        item._id ||
-                        item.id
-                      }
-                      item={item}
-                      onToggleFavourite={
-                        handleToggleFavourite
-                      }
-                      onDelete={
-                        handleDeleteItem
-                      }
-                      onEdit={
-                        handleEditItem
-                      }
-                    />
-                  )
-                )}
-              </div>
+              <div className="saved-items-grid">
+  {filteredItems.map((item) => (
+    <SavedItemCard
+      key={item._id || item.id}
+      item={item}
+      onToggleFavourite={handleToggleFavourite}
+      onDelete={handleDeleteItem}
+      onEdit={handleEditItem}
+      onShare={handleShareItem}
+    />
+  ))}
+</div>
             )}
           </section>
         </div>
@@ -672,7 +640,7 @@ function DashboardPage() {
         <AddItemModal
           item={editingItem}
           onClose={
-            handleCloseAddModal
+            handleCloseItemModal
           }
           onSubmit={
             handleAddItem
@@ -680,7 +648,61 @@ function DashboardPage() {
           isSaving={isSaving}
         />
       )}
-    </div>
+
+      {sharingItem && (
+        <ShareItemModal
+          item={sharingItem}
+          onClose={() =>
+            setSharingItem(null)
+          }
+          onShareUpdated={() => {
+            loadItems();
+          }}
+        />
+      )}
+      <footer className="dashboard-footer">
+  <div className="dashboard-footer-brand">
+    <strong>Recall</strong>
+    <span>Save it. Find it. Recall it.</span>
+  </div>
+
+  <div className="dashboard-footer-socials">
+    <a
+      href="https://www.linkedin.com/in/sibnarayan-samanta-dev/"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="LinkedIn"
+      className="social-linkedin"
+    >
+      <i className="fa-brands fa-linkedin-in" />
+    </a>
+
+    <a
+      href="https://github.com/sibnarayansamanta7-boop"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="GitHub"
+      className="social-github"
+    >
+      <i className="fa-brands fa-github" />
+    </a>
+
+    <a
+      href="https://www.instagram.com/trollface8150_"
+      target="_blank"
+      rel="noreferrer"
+      aria-label="Instagram"
+      className="social-instagram"
+    >
+      <i className="fa-brands fa-instagram" />
+    </a>
+  </div>
+
+  <span className="dashboard-footer-copy">
+    © 2026 Recall
+  </span>
+</footer>
+    </main>
   );
 }
 

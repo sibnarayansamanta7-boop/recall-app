@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Item from "../models/Item.js";
+import { generateShareCode } from "../utils/generateShareCode.js";
 
 export async function getItems(req, res) {
   try {
@@ -152,91 +153,6 @@ export async function updateItem(req, res) {
       thumbnail,
     } = req.body;
 
-    if (!type || !title?.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "Type and title are required.",
-      });
-    }
-
-    const allowedTypes = [
-      "link",
-      "note",
-      "screenshot",
-    ];
-
-    if (!allowedTypes.includes(type)) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "Type must be link, note or screenshot.",
-      });
-    }
-
-    if (type === "link" && !url?.trim()) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "A URL is required for link items.",
-      });
-    }
-
-    const updatedItem =
-      await Item.findOneAndUpdate(
-        {
-          _id: id,
-          user: req.user._id,
-        },
-        {
-          type,
-          title: title.trim(),
-          description: description?.trim() || "",
-          source:
-            source?.trim() || "Unknown source",
-          url: url?.trim() || "",
-          tags: Array.isArray(tags) ? tags : [],
-          userNote: userNote?.trim() || "",
-          thumbnail: thumbnail || "",
-        },
-        {
-          new: true,
-          runValidators: true,
-        }
-      );
-
-    if (!updatedItem) {
-      return res.status(404).json({
-        success: false,
-        message: "Item not found.",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Item updated successfully.",
-      item: updatedItem,
-    });
-  } catch (error) {
-    console.error("Update item error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Unable to update the item.",
-    });
-  }
-}
-
-export async function toggleFavourite(req, res) {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.isValidObjectId(id)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid item ID.",
-      });
-    }
-
     const item = await Item.findOne({
       _id: id,
       user: req.user._id,
@@ -249,27 +165,73 @@ export async function toggleFavourite(req, res) {
       });
     }
 
-    item.isFavourite = !item.isFavourite;
+    if (type !== undefined) {
+      const allowedTypes = [
+        "link",
+        "note",
+        "screenshot",
+      ];
+
+      if (!allowedTypes.includes(type)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Type must be link, note or screenshot.",
+        });
+      }
+
+      item.type = type;
+    }
+
+    if (title !== undefined) {
+      if (!title.trim()) {
+        return res.status(400).json({
+          success: false,
+          message: "Title is required.",
+        });
+      }
+
+      item.title = title.trim();
+    }
+
+    if (description !== undefined) {
+      item.description = description.trim();
+    }
+
+    if (source !== undefined) {
+      item.source =
+        source.trim() || "Unknown source";
+    }
+
+    if (url !== undefined) {
+      item.url = url.trim();
+    }
+
+    if (tags !== undefined) {
+      item.tags = Array.isArray(tags) ? tags : [];
+    }
+
+    if (userNote !== undefined) {
+      item.userNote = userNote.trim();
+    }
+
+    if (thumbnail !== undefined) {
+      item.thumbnail = thumbnail;
+    }
 
     await item.save();
 
     res.status(200).json({
       success: true,
-      message: item.isFavourite
-        ? "Item added to favourites."
-        : "Item removed from favourites.",
+      message: "Item updated successfully.",
       item,
     });
   } catch (error) {
-    console.error(
-      "Toggle favourite error:",
-      error
-    );
+    console.error("Update item error:", error);
 
     res.status(500).json({
       success: false,
-      message:
-        "Unable to update favourite status.",
+      message: "Unable to update the item.",
     });
   }
 }
@@ -308,6 +270,228 @@ export async function deleteItem(req, res) {
     res.status(500).json({
       success: false,
       message: "Unable to delete the item.",
+    });
+  }
+}
+
+export async function toggleFavourite(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid item ID.",
+      });
+    }
+
+    const item = await Item.findOne({
+      _id: id,
+      user: req.user._id,
+    });
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found.",
+      });
+    }
+
+    item.isFavourite = !item.isFavourite;
+
+    await item.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Favourite updated.",
+      item,
+    });
+  } catch (error) {
+    console.error(
+      "Toggle favourite error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message:
+        "Unable to update favourite.",
+    });
+  }
+}
+
+export async function createShare(req, res) {
+  try {
+    const { id } = req.params;
+    const { expiresIn } = req.body;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid item ID.",
+      });
+    }
+
+    const item = await Item.findOne({
+      _id: id,
+      user: req.user._id,
+    });
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found.",
+      });
+    }
+
+    const shareCode = generateShareCode();
+
+    let shareExpiresAt = null;
+
+    if (expiresIn && expiresIn !== "never") {
+      const expirationHours = Number(expiresIn);
+
+      if (
+        !Number.isFinite(expirationHours) ||
+        expirationHours <= 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid expiration time.",
+        });
+      }
+
+      shareExpiresAt = new Date(
+        Date.now() +
+          expirationHours * 60 * 60 * 1000
+      );
+    }
+
+    item.shareCode = shareCode;
+    item.shareEnabled = true;
+    item.shareCreatedAt = new Date();
+    item.shareExpiresAt = shareExpiresAt;
+
+    await item.save();
+
+    const shareUrl =
+      `${process.env.CLIENT_URL || "http://localhost:5173"}` +
+      `/shared/${shareCode}`;
+
+    res.status(200).json({
+      success: true,
+      message: "Share link created.",
+      shareCode,
+      shareUrl,
+      shareExpiresAt,
+    });
+  } catch (error) {
+    console.error(
+      "Create share error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to create share link.",
+    });
+  }
+}
+
+export async function regenerateShare(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid item ID.",
+      });
+    }
+
+    const item = await Item.findOne({
+      _id: id,
+      user: req.user._id,
+    });
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found.",
+      });
+    }
+
+    item.shareCode = generateShareCode();
+    item.shareEnabled = true;
+    item.shareCreatedAt = new Date();
+
+    await item.save();
+
+    const shareUrl =
+      `${process.env.CLIENT_URL || "http://localhost:5173"}` +
+      `/shared/${item.shareCode}`;
+
+    res.status(200).json({
+      success: true,
+      message: "Share link regenerated.",
+      shareCode: item.shareCode,
+      shareUrl,
+      shareExpiresAt: item.shareExpiresAt,
+    });
+  } catch (error) {
+    console.error(
+      "Regenerate share error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message:
+        "Unable to regenerate share link.",
+    });
+  }
+}
+
+export async function disableShare(req, res) {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid item ID.",
+      });
+    }
+
+    const item = await Item.findOne({
+      _id: id,
+      user: req.user._id,
+    });
+
+    if (!item) {
+      return res.status(404).json({
+        success: false,
+        message: "Item not found.",
+      });
+    }
+
+    item.shareEnabled = false;
+
+    await item.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Sharing disabled.",
+    });
+  } catch (error) {
+    console.error(
+      "Disable share error:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to disable sharing.",
     });
   }
 }

@@ -6,6 +6,7 @@ import connectDatabase from "./config/db.js";
 
 import itemRoutes from "./routes/itemRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import sharedRoutes from "./routes/sharedRoutes.js";
 
 dotenv.config();
 
@@ -50,6 +51,11 @@ app.use(
 app.use(
   "/api/items",
   itemRoutes
+);
+
+app.use(
+  "/api/shared",
+  sharedRoutes
 );
 
 app.use((req, res) => {

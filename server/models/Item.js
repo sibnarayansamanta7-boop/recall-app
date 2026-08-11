@@ -3,11 +3,10 @@ import mongoose from "mongoose";
 const itemSchema = new mongoose.Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true,
+},
     type: {
       type: String,
       enum: ["link", "note", "screenshot"],
@@ -57,6 +56,29 @@ const itemSchema = new mongoose.Schema(
     isFavourite: {
       type: Boolean,
       default: false,
+    },
+
+    shareCode: {
+      type: String,
+      default: "",
+      unique: true,
+      sparse: true,
+      index: true,
+    },
+
+    shareEnabled: {
+      type: Boolean,
+      default: false,
+    },
+
+    shareCreatedAt: {
+      type: Date,
+      default: null,
+    },
+
+    shareExpiresAt: {
+      type: Date,
+      default: null,
     },
   },
   {

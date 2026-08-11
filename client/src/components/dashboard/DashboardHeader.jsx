@@ -4,6 +4,7 @@ function DashboardHeader({
   onMenuClick,
   onAddItem,
   currentUser = {},
+  isSidebarOpen = false,
 }) {
   function handleSearchChange(event) {
     if (typeof onSearchChange === "function") {
@@ -23,26 +24,41 @@ function DashboardHeader({
     }
   }
 
-  const userName = currentUser?.name?.trim() || "User";
+  const userName =
+    currentUser?.name?.trim() || "User";
 
-  const userInitials = userName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
+  const userInitials =
+    userName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) =>
+        part[0].toUpperCase()
+      )
+      .join("") || "U";
 
   return (
     <header className="dashboard-header">
+      {/* MENU BUTTON */}
       <button
-        className="dashboard-menu-button"
+        className={`dashboard-menu-button ${
+          isSidebarOpen
+            ? "menu-button-active"
+            : ""
+        }`}
         type="button"
         onClick={handleMenuClick}
-        aria-label="Open menu"
+        aria-label={
+          isSidebarOpen
+            ? "Close menu"
+            : "Open menu"
+        }
+        aria-expanded={isSidebarOpen}
       >
         ☰
       </button>
 
+      {/* SEARCH */}
       <div className="dashboard-search-wrapper">
         <span
           className="dashboard-search-icon"
@@ -62,13 +78,17 @@ function DashboardHeader({
         <kbd>⌘ K</kbd>
       </div>
 
+      {/* HEADER ACTIONS */}
       <div className="dashboard-header-actions">
         <button
           className="dashboard-add-button"
           type="button"
           onClick={handleAddItemClick}
         >
-          <span aria-hidden="true">+</span>
+          <span aria-hidden="true">
+            +
+          </span>
+
           Add item
         </button>
 
@@ -77,7 +97,10 @@ function DashboardHeader({
           type="button"
           aria-label="Notifications"
         >
-          <span aria-hidden="true">♢</span>
+          <span aria-hidden="true">
+            ♢
+          </span>
+
           <span className="notification-dot" />
         </button>
 
@@ -87,12 +110,15 @@ function DashboardHeader({
           aria-label={`Profile of ${userName}`}
         >
           <span className="dashboard-avatar">
-            {userInitials || "U"}
+            {userInitials}
           </span>
 
           <span className="dashboard-profile-text">
             <strong>{userName}</strong>
-            <small>Free account</small>
+
+            <small>
+              Free account
+            </small>
           </span>
 
           <span

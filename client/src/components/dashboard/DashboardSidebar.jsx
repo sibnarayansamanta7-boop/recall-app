@@ -57,6 +57,7 @@ function DashboardSidebar({
 
   return (
     <>
+      {/* Background overlay when sidebar is open */}
       {isOpen && (
         <button
           className="dashboard-sidebar-overlay"
@@ -72,9 +73,15 @@ function DashboardSidebar({
             ? "dashboard-sidebar dashboard-sidebar-open"
             : "dashboard-sidebar"
         }
+        aria-hidden={!isOpen}
       >
+        {/* Sidebar header */}
         <div className="dashboard-sidebar-header">
-          <Link className="dashboard-logo" to="/">
+          <Link
+            className="dashboard-logo"
+            to="/dashboard"
+            onClick={handleClose}
+          >
             <span className="dashboard-logo-icon">
               R
             </span>
@@ -92,6 +99,7 @@ function DashboardSidebar({
           </button>
         </div>
 
+        {/* Sidebar content */}
         <div className="dashboard-sidebar-content">
           <p className="dashboard-menu-label">
             Workspace
@@ -126,6 +134,7 @@ function DashboardSidebar({
             ))}
           </nav>
 
+          {/* Collections */}
           <div className="dashboard-collections">
             <div className="dashboard-collections-heading">
               <p className="dashboard-menu-label">
@@ -166,20 +175,28 @@ function DashboardSidebar({
           </div>
         </div>
 
+        {/* Sidebar footer */}
         <div className="dashboard-sidebar-footer">
           <button
             className="dashboard-settings-button"
             type="button"
           >
-            <span aria-hidden="true">⚙</span>
+            <span aria-hidden="true">
+              ⚙
+            </span>
+
             Settings
           </button>
 
           <Link
             className="dashboard-logout-button"
             to="/login"
+            onClick={handleClose}
           >
-            <span aria-hidden="true">↪</span>
+            <span aria-hidden="true">
+              ↪
+            </span>
+
             Log out
           </Link>
         </div>
