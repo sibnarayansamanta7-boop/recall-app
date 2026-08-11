@@ -64,6 +64,13 @@ function SharedItemPage() {
         <div className="shared-header">
           <div>
             <h1>{item.title}</h1>
+            {item.thumbnail && (
+  <img
+    src={item.thumbnail}
+    alt={item.title}
+    className="shared-item-image"
+  />
+)}
 
             <span className="shared-type">
               {item.type}
