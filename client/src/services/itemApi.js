@@ -1,7 +1,6 @@
 import { getAuthToken } from "./authApi";
 
-const API_BASE_URL =
-  "http://localhost:8001/api";
+const API_BASE_URL = "https://recall-app-y0vp.onrender.com/api";
 
 export async function fetchItems() {
   const token = getAuthToken();
