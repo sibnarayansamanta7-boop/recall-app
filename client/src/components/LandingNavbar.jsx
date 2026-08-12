@@ -4,10 +4,15 @@ function LandingNavbar() {
   return (
     <header className="landing-navbar">
       <div className="navbar-container">
-        <Link className="landing-logo" to="/">
-          Recall
-        </Link>
-
+        
+      <Link className="landing-logo" to="/">
+  <img
+    src="/recall-logo.png"
+    alt="Recall"
+    className="landing-logo-image"
+  />
+  <span>Recall</span>
+</Link>
         <nav
           className="landing-nav-links"
           aria-label="Main navigation"
