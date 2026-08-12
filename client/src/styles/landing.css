@@ -958,3 +958,251 @@ a {
   margin: 20px 0;
   background: #f5f3ff;
 }
+/* CLICKABLE RECALL RESULT */
+
+.recall-result-card {
+  width: 100%;
+  margin-top: 24px;
+  padding: 20px;
+  text-align: left;
+  border: 1px solid rgba(120, 90, 255, 0.18);
+  border-radius: 18px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 10px 30px rgba(40, 30, 80, 0.08);
+}
+
+.recall-result-card:hover {
+  transform: translateY(-4px);
+  border-color: #8b5cf6;
+  box-shadow: 0 18px 40px rgba(100, 70, 220, 0.16);
+}
+
+.recall-result-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.recall-result-top span:first-child {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f1ecff;
+  color: #6941c6;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.recall-result-open {
+  color: #6941c6;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.recall-result-card h3 {
+  margin: 8px 0;
+  color: #18181b;
+  font-size: 20px;
+}
+
+.recall-result-card p {
+  margin: 0;
+  color: #66636f;
+  line-height: 1.6;
+}
+
+.recall-result-image {
+  width: 100%;
+  max-height: 220px;
+  margin-top: 16px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #f7f5ff;
+}
+
+.recall-result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.recall-result-tags span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #f4f1ff;
+  color: #6941c6;
+  font-size: 12px;
+}
+
+.recall-result-hint {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #eeeeee;
+  color: #6941c6;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* FULL ITEM MODAL */
+
+.recall-item-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 12, 25, 0.62);
+  backdrop-filter: blur(8px);
+}
+
+.recall-item-modal {
+  position: relative;
+  width: min(620px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  animation: recallModalIn 0.2s ease;
+}
+
+@keyframes recallModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.recall-item-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #f4f2f8;
+  color: #444;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.recall-item-modal-close:hover {
+  background: #ece7ff;
+  color: #6941c6;
+}
+
+.recall-item-modal-label {
+  margin: 0 0 10px;
+  color: #6941c6;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.recall-item-modal-type {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f1ecff;
+  color: #6941c6;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.recall-item-modal h2 {
+  margin: 0 45px 20px 0;
+  color: #18181b;
+  font-size: 28px;
+  line-height: 1.25;
+}
+
+.recall-modal-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  margin-bottom: 24px;
+  border-radius: 16px;
+  background: #f7f5ff;
+}
+
+.recall-modal-section {
+  margin-top: 20px;
+}
+
+.recall-modal-section h3 {
+  margin-bottom: 7px;
+  color: #33313a;
+  font-size: 14px;
+}
+
+.recall-modal-section p {
+  margin: 0;
+  color: #66636f;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.recall-modal-section a {
+  color: #6941c6;
+  word-break: break-word;
+  text-decoration: none;
+}
+
+.recall-modal-section a:hover {
+  text-decoration: underline;
+}
+
+.recall-modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recall-modal-tags span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f4f1ff;
+  color: #6941c6;
+  font-size: 12px;
+}
+
+.recall-modal-footer {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid #eeeeee;
+  color: #9995a3;
+  font-size: 12px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .recall-item-modal-overlay {
+    padding: 12px;
+  }
+
+  .recall-item-modal {
+    padding: 24px 20px;
+    border-radius: 20px;
+  }
+
+  .recall-item-modal h2 {
+    font-size: 23px;
+  }
+}
