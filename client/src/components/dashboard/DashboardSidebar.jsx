@@ -28,12 +28,7 @@ function DashboardSidebar({
           to="/dashboard"
           className="dashboard-logo"
         >
-          <span className="dashboard-logo-icon">
-            <img
-              src="/recall-avatar.png"
-              alt="Recall"
-            />
-          </span>
+          
 
           <span>Recall</span>
         </Link>
