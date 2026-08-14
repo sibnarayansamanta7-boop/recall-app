@@ -6,51 +6,81 @@ import { loginUser } from "../services/authApi";
 function LoginPage() {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] =
+    useState({
+      email: "",
+      password: "",
+    });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
 
   function handleChange(event) {
-    const { name, value } = event.target;
+    const { name, value } =
+      event.target;
 
     setFormData((previous) => ({
       ...previous,
       [name]: value,
     }));
-
-    if (error) {
-      setError("");
-    }
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      setError("Please enter your email and password.");
+    setError("");
+
+    if (
+      !formData.email.trim() ||
+      !formData.password
+    ) {
+      setError(
+        "Please enter your email and password."
+      );
       return;
     }
 
     try {
       setLoading(true);
-      setError("");
 
-      const data = await loginUser(formData);
+      const data =
+        await loginUser(formData);
 
-      if (data?.token) {
-        localStorage.setItem("token", data.token);
+      const token =
+        data?.token ||
+        data?.accessToken;
+
+      if (!token) {
+        throw new Error(
+          "Login succeeded, but no authentication token was returned."
+        );
+      }
+
+      localStorage.setItem(
+        "recall_token",
+        token
+      );
+
+      localStorage.setItem(
+        "token",
+        token
+      );
+
+      if (data?.user) {
+        localStorage.setItem(
+          "recall_user",
+          JSON.stringify(data.user)
+        );
       }
 
       navigate("/dashboard");
-    } catch (requestError) {
+    } catch (err) {
       setError(
-        requestError.message ||
-          "Unable to log in. Please check your credentials."
+        err?.message ||
+          "Unable to log in. Please try again."
       );
     } finally {
       setLoading(false);
@@ -60,14 +90,25 @@ function LoginPage() {
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to continue to your personal memory space."
-      bottomText="Don't have an account?"
-      bottomLinkText="Create one"
-      bottomLinkTo="/register"
+      subtitle="Continue rediscovering the things that matter."
+      footerText="Don't have an account?"
+      footerLinkText="Create one"
+      footerLinkTo="/register"
     >
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form
+        className="auth-form"
+        onSubmit={handleSubmit}
+      >
+        {error && (
+          <div className="auth-error">
+            {error}
+          </div>
+        )}
+
         <div className="auth-input-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">
+            Email
+          </label>
 
           <input
             id="email"
@@ -82,59 +123,38 @@ function LoginPage() {
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="password">Password</label>
-
-          <div className="auth-password-wrapper">
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              autoComplete="current-password"
-              required
-            />
-
-            <button
-              type="button"
-              className="auth-password-toggle"
-              onClick={() => setShowPassword((value) => !value)}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
+          <div className="auth-label-row">
+            <label htmlFor="password">
+              Password
+            </label>
           </div>
+
+          <input
+            id="password"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Enter your password"
+            autoComplete="current-password"
+            required
+          />
         </div>
-
-        <div className="auth-form-options">
-          <label className="auth-checkbox-label">
-            <input type="checkbox" />
-            <span>Remember me</span>
-          </label>
-
-          <span className="auth-forgot-link">
-            Forgot password?
-          </span>
-        </div>
-
-        {error && <p className="auth-error-message">{error}</p>}
 
         <button
-          className="auth-submit-button"
           type="submit"
+          className="auth-submit-button"
           disabled={loading}
         >
-          {loading ? "Signing in..." : "Sign in"}
+          {loading
+            ? "Signing in..."
+            : "Sign in"}
         </button>
-
-        <p className="auth-security-note">
-          🔒 Your saved knowledge stays private.
-        </p>
       </form>
 
-      <div className="auth-mobile-register">
-        New to Recall?{" "}
-        <Link to="/register">Create your account</Link>
+      <div className="auth-small-note">
+        <span>🔒</span>
+        Your saved memories stay private.
       </div>
     </AuthLayout>
   );

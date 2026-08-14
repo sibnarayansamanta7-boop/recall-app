@@ -5,8 +5,8 @@ function Footer() {
     <footer className="landing-footer">
       <div className="footer-container">
         <div>
-          <a className="footer-logo" href="/">
-            <img src="/recall-logo.png" alt="Recall" />
+          <a href="/" className="footer-logo">
+            <span className="footer-logo-mark">R</span>
             <span>Recall</span>
           </a>
 
@@ -18,8 +18,8 @@ function Footer() {
         <div className="footer-links">
           <a href="/#features">Features</a>
           <a href="/#about">About</a>
-          <a href="/login">Login</a>
-          <a href="/register">Get Started</a>
+          <a href="/login">Log in</a>
+          <a href="/register">Get started</a>
         </div>
       </div>
 

@@ -1,36 +1,20 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import "../styles/auth.css";
 
 function AuthLayout({
-  title,
-  subtitle,
   children,
-  bottomText,
-  bottomLinkText,
-  bottomLinkTo,
+  title,
+  description,
+  eyebrow = "YOUR PERSONAL KNOWLEDGE MEMORY",
+  footerText,
+  footerLinkText,
+  footerLinkTo,
+  theme,
 }) {
-  const [theme, setTheme] = useState("dark");
-
-  const themes = {
-    dark: {
-      background: "#111827",
-      primary: "#7c5cff",
-    },
-    purple: {
-      background: "#24124d",
-      primary: "#a855f7",
-    },
-    blue: {
-      background: "#0b2447",
-      primary: "#3b82f6",
-    },
-    green: {
-      background: "#092b24",
-      primary: "#10b981",
-    },
+  const activeTheme = theme || {
+    background: "#080b16",
+    primary: "#7c5cff",
   };
-
-  const activeTheme = themes[theme];
 
   return (
     <div
@@ -40,57 +24,108 @@ function AuthLayout({
         "--auth-primary-color": activeTheme.primary,
       }}
     >
-      <div className="auth-container">
+      {/* Decorative background */}
+      <div className="auth-background-glow auth-glow-one"></div>
+      <div className="auth-background-glow auth-glow-two"></div>
+      <div className="auth-background-glow auth-glow-three"></div>
+
+      <div className="auth-noise"></div>
+
+      <main className="auth-container">
         <div className="auth-login-container">
+
+          {/* Back to Recall */}
           <Link to="/" className="auth-back-link">
-            ← Back to Recall
+            <span className="auth-back-arrow">←</span>
+            <span>Back to Recall</span>
           </Link>
 
-          <div className="auth-brand">
-            <img src="/recall-logo.png" alt="Recall" />
-            <span>Recall</span>
-          </div>
+          {/* Brand */}
+          <Link to="/" className="auth-brand" aria-label="Back to Recall">
+            <span className="auth-brand-mark">
+              <span>R</span>
+            </span>
 
-          <div className="auth-form-container">
+            <span className="auth-brand-name">
+              Recall
+            </span>
+          </Link>
+
+          {/* Authentication card */}
+          <section className="auth-form-container">
+
             <div className="auth-heading">
-              <p className="auth-eyebrow">WELCOME BACK</p>
+              <p className="auth-eyebrow">
+                {eyebrow}
+              </p>
 
-              <h1>{title}</h1>
+              <h1>
+                {title}
+              </h1>
 
-              <p>{subtitle}</p>
+              {description && (
+                <p className="auth-description">
+                  {description}
+                </p>
+              )}
             </div>
 
             {children}
+
+            {/* Bottom navigation supplied by page */}
+            {(footerText || footerLinkText) && (
+              <div className="auth-bottom-navigation">
+                {footerText && (
+                  <span>
+                    {footerText}
+                  </span>
+                )}
+
+                {footerLinkText && footerLinkTo && (
+                  <Link to={footerLinkTo}>
+                    {footerLinkText}
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {/* Guest access */}
+            <div className="auth-guest-section">
+              <div className="auth-divider">
+                <span>or</span>
+              </div>
+
+              <Link
+                to="/"
+                className="auth-guest-button"
+              >
+                <span className="auth-guest-icon">↗</span>
+                Continue as guest
+              </Link>
+
+              <p className="auth-guest-note">
+                Explore Recall without creating an account.
+              </p>
+            </div>
+
+          </section>
+
+          {/* Privacy note */}
+          <div className="auth-privacy-note">
+            <span className="auth-lock-icon">🔒</span>
+
+            <span>
+              Your saved memories stay private.
+            </span>
           </div>
 
-          {bottomText && bottomLinkText && bottomLinkTo && (
-            <div className="auth-bottom-navigation">
-              <span>{bottomText}</span>
+          {/* Small footer */}
+          <p className="auth-page-footer">
+            Recall · Save it. Find it. Recall it.
+          </p>
 
-              <Link to={bottomLinkTo}>{bottomLinkText}</Link>
-            </div>
-          )}
         </div>
-
-        <div className="auth-decoration auth-decoration-one"></div>
-        <div className="auth-decoration auth-decoration-two"></div>
-        <div className="auth-decoration auth-decoration-three"></div>
-
-        <div className="theme-btn-container">
-          {Object.entries(themes).map(([themeName, themeValue]) => (
-            <button
-              key={themeName}
-              type="button"
-              className={`theme-btn ${
-                theme === themeName ? "theme-btn-active" : ""
-              }`}
-              style={{ background: themeValue.primary }}
-              onClick={() => setTheme(themeName)}
-              aria-label={`Use ${themeName} theme`}
-            />
-          ))}
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

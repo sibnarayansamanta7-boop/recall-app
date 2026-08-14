@@ -4,23 +4,46 @@ function LandingNavbar() {
   return (
     <header className="landing-navbar">
       <div className="navbar-container">
-        <Link className="landing-logo" to="/">
-          <img src="/recall-logo.png" alt="Recall" />
-          <span>Recall</span>
+        <Link
+          to="/"
+          className="landing-logo"
+          aria-label="Recall home"
+        >
+          <span className="landing-logo-mark">
+            <span>R</span>
+          </span>
+
+          <span className="landing-logo-text">
+            Recall
+          </span>
         </Link>
 
-        <nav className="landing-nav-links">
-          <a href="/#features">Features</a>
-          <a href="/#about">About</a>
+        <nav
+          className="landing-nav-links"
+          aria-label="Main navigation"
+        >
+          <a href="/#features">
+            Features
+          </a>
+
+          <a href="/#about">
+            About
+          </a>
         </nav>
 
         <div className="landing-nav-actions">
-          <Link className="login-button" to="/login">
-            Login
+          <Link
+            to="/login"
+            className="login-button"
+          >
+            Log in
           </Link>
 
-          <Link className="register-button" to="/register">
-            Get Started
+          <Link
+            to="/register"
+            className="register-button"
+          >
+            Get started
           </Link>
         </div>
       </div>

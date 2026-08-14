@@ -1,161 +1,221 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { fetchSharedItem } from "../services/itemApi";
+import "../styles/shared.css";
 
 function SharedItemPage() {
   const { shareCode } = useParams();
 
-  const [item, setItem] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [item, setItem] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   useEffect(() => {
-    async function loadItem() {
+    let cancelled = false;
+
+    async function loadSharedItem() {
+      if (!shareCode) {
+        setError(
+          "No share code was provided."
+        );
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError("");
 
-        const data = await fetchSharedItem(shareCode);
+        const data =
+          await fetchSharedItem(
+            shareCode
+          );
 
-        setItem(data.item);
-      } catch (requestError) {
-        setError(
-          requestError.message ||
-            "This shared item could not be found."
-        );
+        if (!cancelled) {
+          setItem(data?.item || null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err?.message ||
+              "This shared item could not be found."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
-    if (shareCode) {
-      loadItem();
-    } else {
-      setLoading(false);
-      setError("No share code was provided.");
-    }
+    loadSharedItem();
+
+    return () => {
+      cancelled = true;
+    };
   }, [shareCode]);
 
   if (loading) {
     return (
-      <main className="shared-page">
+      <div className="shared-page">
         <div className="shared-loading">
           <div className="shared-loading-spinner"></div>
-          <p>Finding your shared memory...</p>
+          <p>Finding your memory...</p>
         </div>
-      </main>
+      </div>
     );
   }
 
   if (error || !item) {
     return (
-      <main className="shared-page">
-        <div className="shared-card shared-error-card">
-          <Link className="shared-logo" to="/">
-            <img src="/recall-logo.png" alt="Recall" />
+      <div className="shared-page">
+        <div className="shared-error-card">
+          <div className="shared-brand">
+            <img
+              src="/recall-avatar.png"
+              alt="Recall"
+            />
             <span>Recall</span>
-          </Link>
+          </div>
 
-          <div className="shared-error-icon">!</div>
+          <div className="shared-error-icon">
+            !
+          </div>
 
-          <p className="shared-label">SHARED ITEM</p>
-
-          <h1>We couldn't find this item.</h1>
+          <h1>
+            Memory not found
+          </h1>
 
           <p>
-            The share code may be incorrect, expired, or no longer
-            available.
+            {error ||
+              "This shared item may have expired or been removed."}
           </p>
 
-          <Link className="shared-home-button" to="/">
+          <Link
+            to="/"
+            className="shared-primary-button"
+          >
             Go to Recall
           </Link>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="shared-page">
-      <div className="shared-card">
-        <Link className="shared-logo" to="/">
-          <img src="/recall-logo.png" alt="Recall" />
+    <div className="shared-page">
+      <header className="shared-header">
+        <Link
+          to="/"
+          className="shared-brand"
+        >
+          <img
+            src="/recall-avatar.png"
+            alt="Recall"
+          />
+
           <span>Recall</span>
         </Link>
 
-        <div className="shared-item-meta">
-          <span className="shared-item-type">
-            {item.type?.toUpperCase() || "ITEM"}
-          </span>
+        <Link
+          to="/"
+          className="shared-home-link"
+        >
+          Open Recall →
+        </Link>
+      </header>
 
-          <span className="shared-item-code">
-            {shareCode}
-          </span>
-        </div>
+      <main className="shared-main">
+        <article className="shared-card">
+          <div className="shared-card-top">
+            <span className="shared-label">
+              SHARED ITEM
+            </span>
 
-        <h1>{item.title}</h1>
-
-        {item.description && (
-          <p className="shared-description">
-            {item.description}
-          </p>
-        )}
-
-        {item.thumbnail && (
-          <img
-            src={item.thumbnail}
-            alt={item.title}
-            className="shared-item-image"
-          />
-        )}
-
-        {item.url && (
-          <div className="shared-section">
-            <p className="shared-section-label">SOURCE</p>
-
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noreferrer"
-              className="shared-source-link"
-            >
-              Open original source ↗
-            </a>
+            <span className="shared-type">
+              {item.type?.toUpperCase() ||
+                "MEMORY"}
+            </span>
           </div>
-        )}
 
-        {item.source && (
-          <div className="shared-section">
-            <p className="shared-section-label">SAVED FROM</p>
-            <p>{item.source}</p>
-          </div>
-        )}
+          <h1>{item.title}</h1>
 
-        {item.tags?.length > 0 && (
-          <div className="shared-section">
-            <p className="shared-section-label">TAGS</p>
+          {item.description && (
+            <p className="shared-description">
+              {item.description}
+            </p>
+          )}
 
-            <div className="shared-tags">
-              {item.tags.map((tag) => (
-                <span key={tag}>#{tag}</span>
-              ))}
+          {item.thumbnail && (
+            <img
+              src={item.thumbnail}
+              alt={item.title}
+              className="shared-image"
+            />
+          )}
+
+          {item.url && (
+            <div className="shared-section">
+              <h2>Source</h2>
+
+              <a
+                href={item.url}
+                target="_blank"
+                rel="noreferrer"
+                className="shared-source-link"
+              >
+                Open source ↗
+              </a>
             </div>
-          </div>
-        )}
+          )}
 
-        {item.userNote && (
-          <div className="shared-note">
-            <p className="shared-section-label">NOTE</p>
-            <p>{item.userNote}</p>
-          </div>
-        )}
+          {item.source && (
+            <div className="shared-section">
+              <h2>Saved from</h2>
+              <p>{item.source}</p>
+            </div>
+          )}
 
-        <div className="shared-footer">
-          <span>🔐</span>
-          Shared securely through Recall
-        </div>
-      </div>
-    </main>
+          {item.tags?.length > 0 && (
+            <div className="shared-section">
+              <h2>Tags</h2>
+
+              <div className="shared-tags">
+                {item.tags.map((tag) => (
+                  <span key={tag}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {item.userNote && (
+            <div className="shared-note">
+              <span className="shared-note-icon">
+                ✦
+              </span>
+
+              <div>
+                <h2>Your note</h2>
+                <p>{item.userNote}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="shared-footer">
+            <span>
+              🔐 Shared securely through Recall
+            </span>
+          </div>
+        </article>
+      </main>
+    </div>
   );
 }
 

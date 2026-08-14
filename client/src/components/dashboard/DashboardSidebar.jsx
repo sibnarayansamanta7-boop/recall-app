@@ -1,207 +1,92 @@
-import { Link } from "react-router-dom";
-
-const navigationItems = [
-  {
-    id: "home",
-    icon: "⌂",
-    label: "Home",
-  },
-  {
-    id: "all",
-    icon: "▦",
-    label: "All items",
-  },
-  {
-    id: "favourites",
-    icon: "★",
-    label: "Favourites",
-  },
-  {
-    id: "links",
-    icon: "↗",
-    label: "Links",
-  },
-  {
-    id: "notes",
-    icon: "✎",
-    label: "Notes",
-  },
-  {
-    id: "screenshots",
-    icon: "▣",
-    label: "Screenshots",
-  },
-];
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 function DashboardSidebar({
-  activeSection = "home",
-  onSectionChange,
-  isOpen = false,
-  onClose,
+  user,
+  onLogout,
 }) {
-  function handleNavigation(sectionId) {
-    if (typeof onSectionChange === "function") {
-      onSectionChange(sectionId);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    if (onLogout) {
+      onLogout();
+      return;
     }
 
-    if (typeof onClose === "function") {
-      onClose();
-    }
+    localStorage.removeItem("recall_token");
+    localStorage.removeItem("token");
+    navigate("/login");
   }
 
-  function handleClose() {
-    if (typeof onClose === "function") {
-      onClose();
-    }
-  }
+  const isActive = (path) =>
+    location.pathname === path;
 
   return (
-    <>
-      {/* Background overlay when sidebar is open */}
-      {isOpen && (
-        <button
-          className="dashboard-sidebar-overlay"
-          type="button"
-          aria-label="Close navigation"
-          onClick={handleClose}
-        />
-      )}
+    <aside className="dashboard-sidebar">
+      <div className="dashboard-sidebar-top">
+        <Link
+          to="/dashboard"
+          className="dashboard-logo"
+        >
+          <span className="dashboard-logo-icon">
+            <img
+              src="/recall-avatar.png"
+              alt="Recall"
+            />
+          </span>
 
-      <aside
-        className={
-          isOpen
-            ? "dashboard-sidebar dashboard-sidebar-open"
-            : "dashboard-sidebar"
-        }
-        aria-hidden={!isOpen}
-      >
-        {/* Sidebar header */}
-        <div className="dashboard-sidebar-header">
+          <span>Recall</span>
+        </Link>
+
+        <nav className="dashboard-navigation">
           <Link
-            className="dashboard-logo"
             to="/dashboard"
-            onClick={handleClose}
+            className={
+              isActive("/dashboard")
+                ? "dashboard-nav-item active"
+                : "dashboard-nav-item"
+            }
           >
-            <span className="dashboard-logo-icon">
-              R
+            <span className="dashboard-nav-icon">
+              ◈
             </span>
 
-            <span>Recall</span>
+            <span>All memories</span>
           </Link>
+        </nav>
+      </div>
 
-          <button
-            className="dashboard-sidebar-close"
-            type="button"
-            aria-label="Close sidebar"
-            onClick={handleClose}
-          >
-            ×
-          </button>
-        </div>
+      <div className="dashboard-sidebar-bottom">
+        <div className="dashboard-user">
+          <div className="dashboard-user-avatar">
+            {(user?.name ||
+              user?.email ||
+              "U")
+              .charAt(0)
+              .toUpperCase()}
+          </div>
 
-        {/* Sidebar content */}
-        <div className="dashboard-sidebar-content">
-          <p className="dashboard-menu-label">
-            Workspace
-          </p>
+          <div className="dashboard-user-info">
+            <strong>
+              {user?.name || "User"}
+            </strong>
 
-          <nav
-            className="dashboard-navigation"
-            aria-label="Dashboard navigation"
-          >
-            {navigationItems.map((item) => (
-              <button
-                key={item.id}
-                className={
-                  activeSection === item.id
-                    ? "dashboard-nav-item dashboard-nav-item-active"
-                    : "dashboard-nav-item"
-                }
-                type="button"
-                onClick={() =>
-                  handleNavigation(item.id)
-                }
-              >
-                <span
-                  className="dashboard-nav-icon"
-                  aria-hidden="true"
-                >
-                  {item.icon}
-                </span>
-
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </nav>
-
-          {/* Collections */}
-          <div className="dashboard-collections">
-            <div className="dashboard-collections-heading">
-              <p className="dashboard-menu-label">
-                Collections
-              </p>
-
-              <button
-                type="button"
-                aria-label="Create collection"
-              >
-                +
-              </button>
-            </div>
-
-            <button
-              className="dashboard-collection-item"
-              type="button"
-            >
-              <span className="collection-dot collection-dot-purple" />
-              Coding
-            </button>
-
-            <button
-              className="dashboard-collection-item"
-              type="button"
-            >
-              <span className="collection-dot collection-dot-blue" />
-              Project ideas
-            </button>
-
-            <button
-              className="dashboard-collection-item"
-              type="button"
-            >
-              <span className="collection-dot collection-dot-green" />
-              Learning
-            </button>
+            <span>
+              {user?.email || ""}
+            </span>
           </div>
         </div>
 
-        {/* Sidebar footer */}
-        <div className="dashboard-sidebar-footer">
-          <button
-            className="dashboard-settings-button"
-            type="button"
-          >
-            <span aria-hidden="true">
-              ⚙
-            </span>
-
-            Settings
-          </button>
-
-          <Link
-            className="dashboard-logout-button"
-            to="/login"
-            onClick={handleClose}
-          >
-            <span aria-hidden="true">
-              ↪
-            </span>
-
-            Log out
-          </Link>
-        </div>
-      </aside>
-    </>
+        <button
+          type="button"
+          className="dashboard-logout-button"
+          onClick={handleLogout}
+        >
+          <span>↪</span>
+          Logout
+        </button>
+      </div>
+    </aside>
   );
 }
 

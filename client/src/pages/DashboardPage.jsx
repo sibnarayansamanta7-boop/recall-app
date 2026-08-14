@@ -20,6 +20,7 @@ import {
 import { getCurrentUser } from "../services/authApi";
 
 import "../styles/dashboard.css";
+import "../styles/dashboard-modern.css";
 
 function DashboardPage() {
   const [items, setItems] = useState([]);

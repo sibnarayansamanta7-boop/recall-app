@@ -1,72 +1,110 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import { registerUser } from "../services/authApi";
 
 function RegisterPage() {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [formData, setFormData] =
+    useState({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
 
   function handleChange(event) {
-    const { name, value } = event.target;
+    const { name, value } =
+      event.target;
 
     setFormData((previous) => ({
       ...previous,
       [name]: value,
     }));
-
-    if (error) {
-      setError("");
-    }
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.password) {
-      setError("Please complete all required fields.");
+    setError("");
+
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
+      setError(
+        "Please fill in all fields."
+      );
+      return;
+    }
+
+    if (
+      formData.password !==
+      formData.confirmPassword
+    ) {
+      setError(
+        "Passwords do not match."
+      );
       return;
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      setError(
+        "Password must be at least 6 characters."
+      );
       return;
     }
 
     try {
       setLoading(true);
-      setError("");
 
-      const data = await registerUser({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
+      const data =
+        await registerUser({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          password: formData.password,
+        });
 
-      if (data?.token) {
-        localStorage.setItem("token", data.token);
+      const token =
+        data?.token ||
+        data?.accessToken;
+
+      if (token) {
+        localStorage.setItem(
+          "recall_token",
+          token
+        );
+
+        localStorage.setItem(
+          "token",
+          token
+        );
       }
 
-      navigate("/dashboard");
-    } catch (requestError) {
+      if (data?.user) {
+        localStorage.setItem(
+          "recall_user",
+          JSON.stringify(data.user)
+        );
+      }
+
+      navigate(
+        token
+          ? "/dashboard"
+          : "/login"
+      );
+    } catch (err) {
       setError(
-        requestError.message ||
+        err?.message ||
           "Unable to create your account. Please try again."
       );
     } finally {
@@ -76,15 +114,26 @@ function RegisterPage() {
 
   return (
     <AuthLayout
-      title="Create your memory space"
-      subtitle="Start saving the things you know you'll want to find again."
-      bottomText="Already have an account?"
-      bottomLinkText="Sign in"
-      bottomLinkTo="/login"
+      title="Create your Recall"
+      subtitle="Build a personal memory space for everything worth finding again."
+      footerText="Already have an account?"
+      footerLinkText="Sign in"
+      footerLinkTo="/login"
     >
-      <form className="auth-form" onSubmit={handleSubmit}>
+      <form
+        className="auth-form"
+        onSubmit={handleSubmit}
+      >
+        {error && (
+          <div className="auth-error">
+            {error}
+          </div>
+        )}
+
         <div className="auth-input-group">
-          <label htmlFor="name">Name</label>
+          <label htmlFor="name">
+            Name
+          </label>
 
           <input
             id="name"
@@ -99,7 +148,9 @@ function RegisterPage() {
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">
+            Email
+          </label>
 
           <input
             id="email"
@@ -114,82 +165,53 @@ function RegisterPage() {
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">
+            Password
+          </label>
 
-          <div className="auth-password-wrapper">
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="At least 6 characters"
-              autoComplete="new-password"
-              required
-            />
-
-            <button
-              type="button"
-              className="auth-password-toggle"
-              onClick={() => setShowPassword((value) => !value)}
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
-          </div>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="At least 6 characters"
+            autoComplete="new-password"
+            required
+          />
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="confirmPassword">Confirm password</label>
+          <label htmlFor="confirmPassword">
+            Confirm password
+          </label>
 
-          <div className="auth-password-wrapper">
-            <input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="Repeat your password"
-              autoComplete="new-password"
-              required
-            />
-
-            <button
-              type="button"
-              className="auth-password-toggle"
-              onClick={() =>
-                setShowConfirmPassword((value) => !value)
-              }
-            >
-              {showConfirmPassword ? "Hide" : "Show"}
-            </button>
-          </div>
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Enter your password again"
+            autoComplete="new-password"
+            required
+          />
         </div>
 
-        {error && <p className="auth-error-message">{error}</p>}
-
-        <label className="auth-checkbox-label auth-terms-label">
-          <input type="checkbox" required />
-          <span>
-            I agree to use Recall responsibly and keep my account secure.
-          </span>
-        </label>
-
         <button
-          className="auth-submit-button"
           type="submit"
+          className="auth-submit-button"
           disabled={loading}
         >
-          {loading ? "Creating account..." : "Create account"}
+          {loading
+            ? "Creating account..."
+            : "Create account"}
         </button>
-
-        <p className="auth-security-note">
-          🔒 Your saved knowledge stays private.
-        </p>
       </form>
 
-      <div className="auth-mobile-register">
-        Already have an account?{" "}
-        <Link to="/login">Sign in</Link>
+      <div className="auth-small-note">
+        <span>✨</span>
+        Start building your personal knowledge memory.
       </div>
     </AuthLayout>
   );
