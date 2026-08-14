@@ -6,28 +6,26 @@ function Footer() {
       <div className="footer-container">
         <div>
           <a className="footer-logo" href="/">
-            Recall
+            <img src="/recall-logo.png" alt="Recall" />
+            <span>Recall</span>
           </a>
 
-          <p>Save knowledge today. Rediscover it tomorrow.</p>
+          <p>
+            Save it. Find it. Recall it.
+          </p>
         </div>
 
         <div className="footer-links">
-          <a href="#features">Features</a>
-          <a href="#about">About</a>
-          <a
-            href="https://github.com/sibnarayansamanta7-boop"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>
+          <a href="/#features">Features</a>
+          <a href="/#about">About</a>
+          <a href="/login">Login</a>
+          <a href="/register">Get Started</a>
         </div>
       </div>
 
-      <p className="footer-copyright">
+      <div className="footer-copyright">
         © {currentYear} Recall. Built by Sibnarayan Samanta.
-      </p>
+      </div>
     </footer>
   );
 }

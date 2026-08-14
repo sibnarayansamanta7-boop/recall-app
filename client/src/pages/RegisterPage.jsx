@@ -1,10 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
-import {
-  registerUser,
-  saveAuthToken,
-} from "../services/authApi";
+import { registerUser } from "../services/authApi";
 
 function RegisterPage() {
   const navigate = useNavigate();
@@ -14,283 +11,186 @@ function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    agreeToTerms: false,
   });
 
-  const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function handleChange(event) {
-    const { name, value, type, checked } = event.target;
+    const { name, value } = event.target;
 
-    setFormData((currentData) => ({
-      ...currentData,
-      [name]:
-        type === "checkbox" ? checked : value,
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
     }));
 
-    setErrors((currentErrors) => ({
-      ...currentErrors,
-      [name]: "",
-    }));
-
-    setServerError("");
-  }
-
-  function validateForm() {
-    const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required.";
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name =
-        "Name must contain at least 2 characters.";
+    if (error) {
+      setError("");
     }
-
-    if (!formData.email.trim()) {
-      newErrors.email =
-        "Email address is required.";
-    } else if (!formData.email.includes("@")) {
-      newErrors.email =
-        "Enter a valid email address.";
-    }
-
-    if (!formData.password) {
-      newErrors.password =
-        "Password is required.";
-    } else if (formData.password.length < 8) {
-      newErrors.password =
-        "Password must contain at least 8 characters.";
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword =
-        "Confirm your password.";
-    } else if (
-      formData.password !==
-      formData.confirmPassword
-    ) {
-      newErrors.confirmPassword =
-        "Passwords do not match.";
-    }
-
-    if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms =
-        "You must agree to the Terms and Privacy Policy.";
-    }
-
-    return newErrors;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const validationErrors = validateForm();
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    if (!formData.name || !formData.email || !formData.password) {
+      setError("Please complete all required fields.");
       return;
     }
 
-    setIsLoading(true);
-    setServerError("");
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
     try {
+      setLoading(true);
+      setError("");
+
       const data = await registerUser({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
+        name: formData.name,
+        email: formData.email,
         password: formData.password,
       });
 
-      saveAuthToken(data.token);
+      if (data?.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       navigate("/dashboard");
-    } catch (error) {
-      setServerError(
-        error.message ||
-          "Unable to create account."
+    } catch (requestError) {
+      setError(
+        requestError.message ||
+          "Unable to create your account. Please try again."
       );
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
   return (
     <AuthLayout
-      title="Create account"
-      subtitle="Start building your searchable memory."
+      title="Create your memory space"
+      subtitle="Start saving the things you know you'll want to find again."
       bottomText="Already have an account?"
-      bottomLinkText="Login"
+      bottomLinkText="Sign in"
       bottomLinkTo="/login"
     >
-      <form
-        className="auth-form"
-        onSubmit={handleSubmit}
-      >
-        {serverError && (
-          <p className="auth-error-message">
-            {serverError}
-          </p>
-        )}
-
+      <form className="auth-form" onSubmit={handleSubmit}>
         <div className="auth-input-group">
-          <label htmlFor="register-name">
-            Full name
-          </label>
+          <label htmlFor="name">Name</label>
 
           <input
-            id="register-name"
+            id="name"
             name="name"
             type="text"
-            placeholder="FULL NAME"
             value={formData.name}
             onChange={handleChange}
-            className={
-              errors.name
-                ? "auth-input-error"
-                : ""
-            }
+            placeholder="Your name"
+            autoComplete="name"
+            required
           />
-
-          {errors.name && (
-            <p className="auth-error-message">
-              {errors.name}
-            </p>
-          )}
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="register-email">
-            Email address
-          </label>
+          <label htmlFor="email">Email</label>
 
           <input
-            id="register-email"
+            id="email"
             name="email"
             type="email"
-            placeholder="EMAIL ADDRESS"
             value={formData.email}
             onChange={handleChange}
-            className={
-              errors.email
-                ? "auth-input-error"
-                : ""
-            }
+            placeholder="you@example.com"
+            autoComplete="email"
+            required
           />
-
-          {errors.email && (
-            <p className="auth-error-message">
-              {errors.email}
-            </p>
-          )}
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="register-password">
-            Password
-          </label>
+          <label htmlFor="password">Password</label>
 
           <div className="auth-password-wrapper">
             <input
-              id="register-password"
+              id="password"
               name="password"
-              type={
-                showPassword
-                  ? "text"
-                  : "password"
-              }
-              placeholder="MINIMUM 8 CHARACTERS"
+              type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={handleChange}
-              className={
-                errors.password
-                  ? "auth-input-error"
-                  : ""
-              }
+              placeholder="At least 6 characters"
+              autoComplete="new-password"
+              required
             />
 
             <button
-              className="auth-password-toggle"
               type="button"
-              onClick={() =>
-                setShowPassword(
-                  (currentValue) =>
-                    !currentValue
-                )
-              }
+              className="auth-password-toggle"
+              onClick={() => setShowPassword((value) => !value)}
             >
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
-
-          {errors.password && (
-            <p className="auth-error-message">
-              {errors.password}
-            </p>
-          )}
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="register-confirm-password">
-            Confirm password
-          </label>
+          <label htmlFor="confirmPassword">Confirm password</label>
 
-          <input
-            id="register-confirm-password"
-            name="confirmPassword"
-            type={
-              showPassword
-                ? "text"
-                : "password"
-            }
-            placeholder="CONFIRM PASSWORD"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className={
-              errors.confirmPassword
-                ? "auth-input-error"
-                : ""
-            }
-          />
+          <div className="auth-password-wrapper">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Repeat your password"
+              autoComplete="new-password"
+              required
+            />
 
-          {errors.confirmPassword && (
-            <p className="auth-error-message">
-              {errors.confirmPassword}
-            </p>
-          )}
+            <button
+              type="button"
+              className="auth-password-toggle"
+              onClick={() =>
+                setShowConfirmPassword((value) => !value)
+              }
+            >
+              {showConfirmPassword ? "Hide" : "Show"}
+            </button>
+          </div>
         </div>
 
-        <label className="auth-checkbox-label auth-terms-label">
-          <input
-            name="agreeToTerms"
-            type="checkbox"
-            checked={formData.agreeToTerms}
-            onChange={handleChange}
-          />
+        {error && <p className="auth-error-message">{error}</p>}
 
+        <label className="auth-checkbox-label auth-terms-label">
+          <input type="checkbox" required />
           <span>
-            I agree to the Terms and Privacy Policy
+            I agree to use Recall responsibly and keep my account secure.
           </span>
         </label>
-
-        {errors.agreeToTerms && (
-          <p className="auth-error-message">
-            {errors.agreeToTerms}
-          </p>
-        )}
 
         <button
           className="auth-submit-button"
           type="submit"
-          disabled={isLoading}
+          disabled={loading}
         >
-          {isLoading
-            ? "CREATING ACCOUNT..."
-            : "CREATE ACCOUNT"}
+          {loading ? "Creating account..." : "Create account"}
         </button>
+
+        <p className="auth-security-note">
+          🔒 Your saved knowledge stays private.
+        </p>
       </form>
+
+      <div className="auth-mobile-register">
+        Already have an account?{" "}
+        <Link to="/login">Sign in</Link>
+      </div>
     </AuthLayout>
   );
 }

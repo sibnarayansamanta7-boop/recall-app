@@ -1,10 +1,13 @@
- import { Link } from "react-router-dom";
- 
- function Hero() {
+import { Link } from "react-router-dom";
+
+function Hero() {
   return (
     <section className="hero-section">
       <div className="hero-content">
-        <p className="hero-badge">Your personal knowledge memory</p>
+        <div className="hero-badge">
+          <span className="hero-badge-dot"></span>
+          Your personal knowledge memory
+        </div>
 
         <h1>
           Save what matters.
@@ -18,12 +21,13 @@
 
         <div className="hero-actions">
           <Link className="primary-button" to="/register">
-  Start remembering
-</Link>
-
-          <Link className="secondary-button" to="/features">
-            Explore features
+            Start remembering
+            <span>→</span>
           </Link>
+
+          <a className="secondary-button" href="#features">
+            Explore features
+          </a>
         </div>
 
         <p className="hero-note">
@@ -32,18 +36,32 @@
       </div>
 
       <div className="hero-preview">
+        <div className="preview-glow"></div>
+
         <div className="preview-window">
           <div className="preview-header">
-            <span className="preview-dot"></span>
-            <span className="preview-dot"></span>
-            <span className="preview-dot"></span>
+            <div className="preview-window-controls">
+              <span className="preview-dot"></span>
+              <span className="preview-dot"></span>
+              <span className="preview-dot"></span>
+            </div>
+
+            <span className="preview-title">Recall</span>
+
+            <span className="preview-status">
+              <span></span>
+              Live
+            </span>
           </div>
 
           <div className="preview-body">
-            <p className="preview-label">What are you trying to remember?</p>
+            <p className="preview-label">
+              What are you trying to remember?
+            </p>
 
             <div className="preview-search">
-              the video explaining JWT refresh tokens
+              <span className="preview-search-icon">⌕</span>
+              <span>the video explaining JWT refresh tokens</span>
             </div>
 
             <div className="preview-result">
@@ -51,6 +69,7 @@
 
               <div>
                 <h3>Complete JWT Authentication Guide</h3>
+
                 <p>
                   React, Node.js, access tokens, refresh tokens and protected
                   routes.
@@ -69,6 +88,7 @@
 
               <div>
                 <h3>Login error screenshot</h3>
+
                 <p>
                   Screenshot saved while fixing an expired token problem.
                 </p>
@@ -79,6 +99,22 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="floating-preview-card floating-preview-card-one">
+          <span>🧠</span>
+          <div>
+            <strong>Context matters</strong>
+            <small>Remember what you remember</small>
+          </div>
+        </div>
+
+        <div className="floating-preview-card floating-preview-card-two">
+          <span>🔐</span>
+          <div>
+            <strong>Secure sharing</strong>
+            <small>Share with a simple code</small>
           </div>
         </div>
       </div>

@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
-import {
-  loginUser,
-  saveAuthToken,
-} from "../services/authApi";
+import { loginUser } from "../services/authApi";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -12,186 +9,133 @@ function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    rememberMe: false,
   });
 
-  const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function handleChange(event) {
-    const { name, value, type, checked } = event.target;
+    const { name, value } = event.target;
 
-    setFormData((currentData) => ({
-      ...currentData,
-      [name]: type === "checkbox" ? checked : value,
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
     }));
 
-    setErrors((currentErrors) => ({
-      ...currentErrors,
-      [name]: "",
-    }));
-
-    setServerError("");
-  }
-
-  function validateForm() {
-    const newErrors = {};
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email address is required.";
-    } else if (!formData.email.includes("@")) {
-      newErrors.email = "Enter a valid email address.";
+    if (error) {
+      setError("");
     }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required.";
-    }
-
-    return newErrors;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
 
-    const validationErrors = validateForm();
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    if (!formData.email || !formData.password) {
+      setError("Please enter your email and password.");
       return;
     }
 
-    setIsLoading(true);
-    setServerError("");
-
     try {
-      const data = await loginUser({
-        email: formData.email.trim(),
-        password: formData.password,
-      });
+      setLoading(true);
+      setError("");
 
-      saveAuthToken(data.token);
+      const data = await loginUser(formData);
+
+      if (data?.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       navigate("/dashboard");
-    } catch (error) {
-      setServerError(
-        error.message || "Unable to login. Please try again."
+    } catch (requestError) {
+      setError(
+        requestError.message ||
+          "Unable to log in. Please check your credentials."
       );
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Log in to rediscover everything you saved."
+      subtitle="Sign in to continue to your personal memory space."
       bottomText="Don't have an account?"
-      bottomLinkText="Create account"
+      bottomLinkText="Create one"
       bottomLinkTo="/register"
     >
       <form className="auth-form" onSubmit={handleSubmit}>
-        {serverError && (
-          <p className="auth-error-message">
-            {serverError}
-          </p>
-        )}
-
         <div className="auth-input-group">
-          <label htmlFor="login-email">
-            Email address
-          </label>
+          <label htmlFor="email">Email</label>
 
           <input
-            id="login-email"
+            id="email"
             name="email"
             type="email"
-            placeholder="EMAIL ADDRESS"
             value={formData.email}
             onChange={handleChange}
-            className={
-              errors.email ? "auth-input-error" : ""
-            }
+            placeholder="you@example.com"
+            autoComplete="email"
+            required
           />
-
-          {errors.email && (
-            <p className="auth-error-message">
-              {errors.email}
-            </p>
-          )}
         </div>
 
         <div className="auth-input-group">
-          <label htmlFor="login-password">
-            Password
-          </label>
+          <label htmlFor="password">Password</label>
 
           <div className="auth-password-wrapper">
             <input
-              id="login-password"
+              id="password"
               name="password"
-              type={
-                showPassword ? "text" : "password"
-              }
-              placeholder="PASSWORD"
+              type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={handleChange}
-              className={
-                errors.password
-                  ? "auth-input-error"
-                  : ""
-              }
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              required
             />
 
             <button
-              className="auth-password-toggle"
               type="button"
-              onClick={() =>
-                setShowPassword(
-                  (currentValue) => !currentValue
-                )
-              }
+              className="auth-password-toggle"
+              onClick={() => setShowPassword((value) => !value)}
             >
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
-
-          {errors.password && (
-            <p className="auth-error-message">
-              {errors.password}
-            </p>
-          )}
         </div>
 
         <div className="auth-form-options">
           <label className="auth-checkbox-label">
-            <input
-              name="rememberMe"
-              type="checkbox"
-              checked={formData.rememberMe}
-              onChange={handleChange}
-            />
-
+            <input type="checkbox" />
             <span>Remember me</span>
           </label>
 
-          <Link
-            className="auth-forgot-link"
-            to="/forgot-password"
-          >
+          <span className="auth-forgot-link">
             Forgot password?
-          </Link>
+          </span>
         </div>
+
+        {error && <p className="auth-error-message">{error}</p>}
 
         <button
           className="auth-submit-button"
           type="submit"
-          disabled={isLoading}
+          disabled={loading}
         >
-          {isLoading ? "LOGGING IN..." : "LOGIN"}
+          {loading ? "Signing in..." : "Sign in"}
         </button>
+
+        <p className="auth-security-note">
+          🔒 Your saved knowledge stays private.
+        </p>
       </form>
+
+      <div className="auth-mobile-register">
+        New to Recall?{" "}
+        <Link to="/register">Create your account</Link>
+      </div>
     </AuthLayout>
   );
 }
