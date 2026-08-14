@@ -1712,3 +1712,95 @@
   font-weight: 900;
   box-shadow: 0 8px 24px rgba(255, 248, 32, 0.25);
 }
+
+/* =========================================================
+   MOBILE NAVBAR AUTH BUTTONS
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .landing-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  .navbar-container {
+    min-height: 66px;
+    padding: 0 14px;
+    gap: 10px;
+  }
+
+  .landing-logo-text {
+    font-size: 1rem;
+  }
+
+  .landing-logo-mark {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+  }
+
+  .landing-nav-links {
+    display: none !important;
+  }
+
+  .landing-nav-actions {
+    margin-left: auto;
+    display: flex !important;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .login-button,
+  .register-button {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    min-height: 38px;
+    padding: 0 11px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+  }
+
+  .login-button {
+    color: #5147a8;
+  }
+
+  .register-button {
+    padding-left: 13px;
+    padding-right: 13px;
+  }
+}
+
+@media (max-width: 420px) {
+  .navbar-container {
+    padding: 0 10px;
+  }
+
+  .landing-logo-text {
+    font-size: 0.92rem;
+  }
+
+  .landing-logo-mark {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+
+  .landing-nav-actions {
+    gap: 5px;
+  }
+
+  .login-button,
+  .register-button {
+    min-height: 36px;
+    padding: 0 9px;
+    font-size: 0.68rem;
+  }
+
+  .register-button {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}

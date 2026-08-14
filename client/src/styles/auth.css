@@ -591,3 +591,156 @@
     animation: none;
   }
 }
+/* =========================================================
+   MOBILE AUTH NAVIGATION FIX
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .recall-auth-page {
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .auth-container {
+    width: 100%;
+    min-height: 100dvh;
+    padding: 18px 14px 28px;
+  }
+
+  .auth-login-container {
+    width: 100%;
+  }
+
+  .auth-back-link {
+    display: inline-flex !important;
+    align-items: center;
+    min-height: 40px;
+    margin-bottom: 14px;
+    font-size: 0.82rem;
+    z-index: 5;
+  }
+
+  .auth-brand {
+    margin-bottom: 18px;
+  }
+
+  .auth-form-container {
+    width: 100%;
+    padding: 24px 18px !important;
+    border-radius: 22px;
+  }
+
+  .auth-heading {
+    margin-bottom: 22px;
+  }
+
+  .auth-heading h1 {
+    font-size: clamp(1.8rem, 9vw, 2.35rem) !important;
+  }
+
+  .auth-heading p:last-child {
+    font-size: 0.86rem;
+    line-height: 1.6;
+  }
+
+  .auth-form {
+    width: 100%;
+  }
+
+  .auth-form-options {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .auth-forgot-link {
+    white-space: nowrap;
+  }
+
+  .auth-submit-button {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .auth-security-note {
+    text-align: center;
+    margin-top: 14px;
+  }
+
+  /* Login -> Create account
+     Register -> Already have account */
+  .auth-mobile-register {
+    display: flex !important;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-top: 20px;
+    padding-top: 18px;
+
+    border-top: 1px solid
+      rgba(255, 255, 255, 0.08);
+
+    text-align: center;
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .auth-mobile-register a {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 4px;
+
+    color: #a99bff !important;
+    font-weight: 750;
+    text-decoration: none;
+  }
+
+  .auth-mobile-register a:hover {
+    color: #c1b7ff !important;
+    text-decoration: underline;
+  }
+
+  .auth-bottom-navigation {
+    display: flex !important;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 18px;
+    text-align: center;
+  }
+
+  .auth-bottom-navigation a {
+    display: inline-flex !important;
+    min-height: 38px;
+    align-items: center;
+  }
+
+  .auth-decoration {
+    display: none;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 390px) {
+  .auth-container {
+    padding: 14px 10px 22px;
+  }
+
+  .auth-form-container {
+    padding: 21px 15px !important;
+  }
+
+  .auth-mobile-register,
+  .auth-bottom-navigation {
+    font-size: 0.78rem;
+  }
+
+  .auth-back-link {
+    font-size: 0.78rem;
+  }
+}
