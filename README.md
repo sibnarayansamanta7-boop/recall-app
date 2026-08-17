@@ -46,3 +46,15 @@ recall-app/
 ├── extension/
 ├── .gitignore
 └── README.md
+
+## 🛠️ Current Tech Stack
+
+- Frontend: React
+- Backend: Node.js & Express.js
+- Database: MongoDB
+- Authentication: JWT
+- Development: Git & GitHub
+
+## 🚀 Project Status
+
+Recall is actively being developed with new features and improvements.
